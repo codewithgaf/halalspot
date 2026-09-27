@@ -134,4 +134,34 @@ class Place extends Model
             },
         );
     }
+
+    /**
+ * Filter places within a given radius (in meters) of a point.
+ */
+    public function scopeNearby($query, float $latitude, float $longitude, float $radiusMeters)
+    {
+        $point = sprintf('POINT(%F %F)', $longitude, $latitude);
+
+        return $query->whereRaw(
+            "ST_DWithin(location, ST_GeogFromText(?), ?)",
+            [$point, $radiusMeters]
+        );
+    }
+
+    /**
+     * Same as scopeNearby, but also selects the actual distance (in meters)
+     * from the point, and orders results closest-first.
+     */
+    public function scopeNearbyWithDistance($query, float $latitude, float $longitude, float $radiusMeters)
+    {
+        $point = sprintf('POINT(%F %F)', $longitude, $latitude);
+
+        return $query
+            ->selectRaw(
+                '*, ST_Distance(location, ST_GeogFromText(?)) AS distance_meters',
+                [$point]
+            )
+            ->whereRaw('ST_DWithin(location, ST_GeogFromText(?), ?)', [$point, $radiusMeters])
+            ->orderBy('distance_meters');
+    }
 }
