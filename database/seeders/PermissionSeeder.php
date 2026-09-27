@@ -34,6 +34,10 @@ class PermissionSeeder extends Seeder
             Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);
         }
 
+        // Note: moderators intentionally do NOT get places.update/places.delete.
+        // Moderators decide a submission's fate (approve/reject/suspend) but
+        // never directly rewrite a user's submitted content — keeps moderation
+        // (workflow decisions) cleanly separated from content ownership.
         $moderatorPermissions = [
             'places.view', 'places.create', 'places.approve', 'places.reject', 'places.suspend',
             'reviews.create', 'reviews.moderate',
