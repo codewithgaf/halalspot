@@ -164,4 +164,16 @@ class Place extends Model
             ->whereRaw('ST_DWithin(location, ST_GeogFromText(?), ?)', [$point, $radiusMeters])
             ->orderBy('distance_meters');
     }
+
+    /**
+     * Filter places within a rectangular map viewport, defined by its
+     * southwest and northeast corners.
+     */
+    public function scopeInViewport($query, float $swLat, float $swLng, float $neLat, float $neLng)
+    {
+        return $query->whereRaw(
+            'ST_Within(location::geometry, ST_MakeEnvelope(?, ?, ?, ?, 4326))',
+            [$swLng, $swLat, $neLng, $neLat]
+        );
+    }
 }
