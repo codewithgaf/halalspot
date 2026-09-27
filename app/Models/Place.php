@@ -12,12 +12,27 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Support\Facades\DB;
 
 #[Fillable([
-    'name', 'slug', 'description',
-    'address_line', 'barangay', 'city', 'province', 'region', 'postal_code', 'country',
-    'phone', 'email', 'website', 'facebook_url', 'instagram_url',
-    'created_by', 'updated_by',
+    'name',
+    'slug',
+    'description',
+    'address_line',
+    'barangay',
+    'city',
+    'province',
+    'region',
+    'postal_code',
+    'country',
+    'phone',
+    'email',
+    'website',
+    'facebook_url',
+    'instagram_url',
+    'created_by',
+    'updated_by',
 ])]
 class Place extends Model
 {
@@ -80,5 +95,43 @@ class Place extends Model
     {
         return $query->where('status', PlaceStatus::Approved)
             ->whereNotNull('published_at');
+    }
+
+    /**
+     * Get/set the place's location using plain latitude/longitude,
+     * translating to/from PostGIS's geography(Point) column under the hood.
+     */
+    protected function location(): Attribute
+    {
+        return Attribute::make(
+            get: function ($value) {
+                if ($value === null) {
+                    return null;
+                }
+
+                $point = DB::selectOne(
+                    'SELECT ST_X(?::geometry) AS longitude, ST_Y(?::geometry) AS latitude',
+                    [$value, $value]
+                );
+
+                return [
+                    'latitude' => $point->latitude,
+                    'longitude' => $point->longitude,
+                ];
+            },
+            set: function ($value) {
+                if ($value === null) {
+                    return ['location' => null];
+                }
+
+                return [
+                    'location' => DB::raw(sprintf(
+                        "ST_GeogFromText('POINT(%F %F)')",
+                        $value['longitude'],
+                        $value['latitude']
+                    )),
+                ];
+            },
+        );
     }
 }
