@@ -19,7 +19,7 @@ const props = defineProps<{
 
 const mapContainer = ref<HTMLDivElement | null>(null);
 
-onMounted(async() => {
+onMounted(async () => {
     if (!mapContainer.value) return;
 
     // Default view centered on Davao region; will auto-fit to actual
