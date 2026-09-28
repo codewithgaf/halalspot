@@ -4,8 +4,8 @@ namespace App\Models;
 
 use App\Enums\PlaceStatus;
 use App\Enums\VerificationStatus;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -73,7 +73,6 @@ class Place extends Model
         });
     }
 
-
     /** @return BelongsTo<User> */
     public function creator(): BelongsTo
     {
@@ -85,7 +84,6 @@ class Place extends Model
     {
         return $this->belongsTo(User::class, 'updated_by');
     }
-
 
     /** @return BelongsToMany<Category> */
     public function categories(): BelongsToMany
