@@ -74,10 +74,10 @@ onMounted(async () => {
 <template>
     <Head title="Explore Halal Places" />
 
-    <div class="flex min-h-screen flex-col bg-[#E8F7EF]">
-        <header class="border-b border-[#0B5D3B]/10 bg-white px-6 py-4">
-            <h1 class="text-xl font-semibold text-[#073D29]">Halalspot</h1>
-            <p class="text-sm text-[#073D29]/70">Find Halal Places Near You</p>
+    <div class="flex min-h-screen flex-col bg-brand-light">
+        <header class="border-b border-brand-dark/10 bg-white px-6 py-4">
+            <h1 class="text-xl font-semibold text-brand-ink">Halalspot</h1>
+            <p class="text-sm text-brand-ink/70">Find Halal Places Near You</p>
         </header>
 
         <main class="flex flex-1 flex-col gap-4 p-6 lg:flex-row">
@@ -87,7 +87,7 @@ onMounted(async () => {
             ></div>
 
             <aside class="w-full space-y-3 lg:w-80">
-                <h2 class="font-medium text-[#073D29]">
+                <h2 class="font-medium text-brand-ink">
                     {{ places.length }} place(s) found
                 </h2>
 
@@ -96,9 +96,9 @@ onMounted(async () => {
                     :key="place.ulid"
                     class="rounded-lg bg-white p-3 shadow-sm"
                 >
-                    <p class="font-medium text-[#073D29]">{{ place.name }}</p>
-                    <p class="text-sm text-[#073D29]/70">{{ place.city }}</p>
-                    <p class="text-xs font-medium text-[#16A34A]">
+                    <p class="font-medium text-brand-ink">{{ place.name }}</p>
+                    <p class="text-sm text-brand-ink/70">{{ place.city }}</p>
+                    <p class="text-xs font-medium text-brand-accent">
                         {{ place.verification_status }}
                     </p>
                 </div>
