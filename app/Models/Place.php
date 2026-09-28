@@ -5,15 +5,15 @@ namespace App\Models;
 use App\Enums\PlaceStatus;
 use App\Enums\VerificationStatus;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Str;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 #[Fillable([
     'name',
@@ -136,14 +136,14 @@ class Place extends Model
     }
 
     /**
- * Filter places within a given radius (in meters) of a point.
- */
+     * Filter places within a given radius (in meters) of a point.
+     */
     public function scopeNearby($query, float $latitude, float $longitude, float $radiusMeters)
     {
         $point = sprintf('POINT(%F %F)', $longitude, $latitude);
 
         return $query->whereRaw(
-            "ST_DWithin(location, ST_GeogFromText(?), ?)",
+            'ST_DWithin(location, ST_GeogFromText(?), ?)',
             [$point, $radiusMeters]
         );
     }
