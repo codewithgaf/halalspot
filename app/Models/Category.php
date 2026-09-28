@@ -13,6 +13,7 @@ class Category extends Model
 {
     use HasFactory;
 
+
     protected function casts(): array
     {
         return [
@@ -36,6 +37,7 @@ class Category extends Model
     /**
      * The places that belong to this category.
      */
+    /** @return BelongsToMany<Place> */
     public function places(): BelongsToMany
     {
         return $this->belongsToMany(Place::class, 'place_categories');

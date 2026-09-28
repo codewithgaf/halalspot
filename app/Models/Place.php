@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\PlaceStatus;
 use App\Enums\VerificationStatus;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
@@ -43,6 +44,7 @@ class Place extends Model
      * We keep the normal auto-incrementing bigint "id" as the actual
      * primary key — "ulid" is a separate, public-facing identifier.
      */
+    /** @return array<string> */
     public function uniqueIds(): array
     {
         return ['ulid'];
@@ -71,16 +73,21 @@ class Place extends Model
         });
     }
 
+
+    /** @return BelongsTo<User> */
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    /** @return BelongsTo<User> */
     public function updater(): BelongsTo
     {
         return $this->belongsTo(User::class, 'updated_by');
     }
 
+
+    /** @return BelongsToMany<Category> */
     public function categories(): BelongsToMany
     {
         return $this->belongsToMany(Category::class, 'place_categories');
@@ -91,7 +98,7 @@ class Place extends Model
      * ever appear to guests/regular users (System_Architecture.md,
      * Architecture_Philosophy #12).
      */
-    public function scopePublished($query)
+    public function scopePublished(Builder $query)
     {
         return $query->where('status', PlaceStatus::Approved)
             ->whereNotNull('published_at');
@@ -101,6 +108,7 @@ class Place extends Model
      * Get/set the place's location using plain latitude/longitude,
      * translating to/from PostGIS's geography(Point) column under the hood.
      */
+    /** @return Attribute<array<string, float>|null, array> */
     protected function location(): Attribute
     {
         return Attribute::make(
@@ -138,7 +146,7 @@ class Place extends Model
     /**
      * Filter places within a given radius (in meters) of a point.
      */
-    public function scopeNearby($query, float $latitude, float $longitude, float $radiusMeters)
+    public function scopeNearby(Builder $query, float $latitude, float $longitude, float $radiusMeters)
     {
         $point = sprintf('POINT(%F %F)', $longitude, $latitude);
 
@@ -152,7 +160,7 @@ class Place extends Model
      * Same as scopeNearby, but also selects the actual distance (in meters)
      * from the point, and orders results closest-first.
      */
-    public function scopeNearbyWithDistance($query, float $latitude, float $longitude, float $radiusMeters)
+    public function scopeNearbyWithDistance(Builder $query, float $latitude, float $longitude, float $radiusMeters)
     {
         $point = sprintf('POINT(%F %F)', $longitude, $latitude);
 
@@ -169,7 +177,7 @@ class Place extends Model
      * Filter places within a rectangular map viewport, defined by its
      * southwest and northeast corners.
      */
-    public function scopeInViewport($query, float $swLat, float $swLng, float $neLat, float $neLng)
+    public function scopeInViewport(Builder $query, float $swLat, float $swLng, float $neLat, float $neLng)
     {
         return $query->whereRaw(
             'ST_Within(location::geometry, ST_MakeEnvelope(?, ?, ?, ?, 4326))',
