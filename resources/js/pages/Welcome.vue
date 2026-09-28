@@ -25,7 +25,7 @@ import { register } from '@/routes';
                 </Link>
                 <template v-else>
                     <Link
-                        :href="login()"
+                        :href="login( )"
                         class="inline-block rounded-sm border border-transparent px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#19140035] dark:text-[#EDEDEC] dark:hover:border-[#3E3E3A]"
                     >
                         Log in
