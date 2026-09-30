@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -73,19 +74,19 @@ class Place extends Model
         });
     }
 
-    /** @return BelongsTo<User> */
+    /** @return BelongsTo<User, Place> */
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
     }
 
-    /** @return BelongsTo<User> */
+    /** @return BelongsTo<User, Place> */
     public function updater(): BelongsTo
     {
         return $this->belongsTo(User::class, 'updated_by');
     }
 
-    /** @return BelongsToMany<Category> */
+    /** @return BelongsToMany<Category, Pivot> */
     public function categories(): BelongsToMany
     {
         return $this->belongsToMany(Category::class, 'place_categories');
@@ -95,6 +96,10 @@ class Place extends Model
      * Public discovery scope — only approved, published places should
      * ever appear to guests/regular users (System_Architecture.md,
      * Architecture_Philosophy #12).
+     */
+    /**
+     * @param Builder<Place> $query
+     * @return Builder<Place>
      */
     public function scopePublished(Builder $query)
     {
@@ -106,7 +111,12 @@ class Place extends Model
      * Get/set the place's location using plain latitude/longitude,
      * translating to/from PostGIS's geography(Point) column under the hood.
      */
-    /** @return Attribute<array<string, float>|null, array> */
+    /**
+     * @return Attribute<
+     *     array{latitude: float, longitude: float}|null,
+     *     array{latitude: float, longitude: float}|null
+     * >
+     */
     protected function location(): Attribute
     {
         return Attribute::make(
@@ -144,6 +154,10 @@ class Place extends Model
     /**
      * Filter places within a given radius (in meters) of a point.
      */
+    /**
+     * @param Builder<Place> $query
+     * @return Builder<Place>
+     */
     public function scopeNearby(Builder $query, float $latitude, float $longitude, float $radiusMeters)
     {
         $point = sprintf('POINT(%F %F)', $longitude, $latitude);
@@ -157,6 +171,10 @@ class Place extends Model
     /**
      * Same as scopeNearby, but also selects the actual distance (in meters)
      * from the point, and orders results closest-first.
+     */
+    /**
+     * @param Builder<Place> $query
+     * @return Builder<Place>
      */
     public function scopeNearbyWithDistance(Builder $query, float $latitude, float $longitude, float $radiusMeters)
     {
@@ -174,6 +192,10 @@ class Place extends Model
     /**
      * Filter places within a rectangular map viewport, defined by its
      * southwest and northeast corners.
+     */
+    /**
+     * @param Builder<Place> $query
+     * @return Builder<Place>
      */
     public function scopeInViewport(Builder $query, float $swLat, float $swLng, float $neLat, float $neLng)
     {

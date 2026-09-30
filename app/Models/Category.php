@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Str;
 
@@ -36,7 +37,7 @@ class Category extends Model
     /**
      * The places that belong to this category.
      */
-    /** @return BelongsToMany<Place> */
+    /** @return BelongsToMany<Place, Pivot> */
     public function places(): BelongsToMany
     {
         return $this->belongsToMany(Place::class, 'place_categories');
