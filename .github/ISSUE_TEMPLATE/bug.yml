@@ -1,0 +1,85 @@
+
+name: "Bug Report"
+description: "Report a reproducible problem in HalalSpot"
+title: "[Bug] "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Help us investigate a HalalSpot issue.
+        Do not include passwords, tokens, or private user data.
+        Report security vulnerabilities privately according
+        to SECURITY.md when that policy is available.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: Describe the problem clearly.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      placeholder: |
+        1. Open the restaurant search page.
+        2. Enter a search query.
+        3. Apply a filter.
+        4. Observe the incorrect result.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: "Fedora, Firefox, desktop"
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Screenshots or Logs
+      description: |
+        Attach sanitized evidence if available.
+        Remove credentials and personal information.
+    validations:
+      required: false
+
+  - type: textarea
+    id: regression
+    attributes:
+      label: Regression Testing
+      description: |
+        Describe a test that should fail before the fix
+        and pass afterward.
+    validations:
+      required: false
+
+  - type: textarea
+    id: security
+    attributes:
+      label: Security and Halal Data Impact
+      description: |
+        Note any privacy, authorization, or halal-status
+        concerns without disclosing exploit details.
+    validations:
+      required: false
