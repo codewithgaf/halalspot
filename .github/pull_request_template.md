@@ -5,8 +5,8 @@
 
 ## Related Issue / Requirement
 
-Closes #
-Requirement ID:
+Related Issue: None
+Requirement ID: N/A
 
 ## Type of Change
 
@@ -36,8 +36,7 @@ Requirement ID:
 - [ ] Input validation reviewed where applicable
 - [ ] Authorization reviewed where applicable
 - [ ] No secrets or sensitive user data exposed
-- [ ] Halal certification claims handled according to
-      verified, self-declared, or unknown status
+- [ ] Halal claims distinguish verified certification, self-declared status, and unknown status
 
 ## UI/UX Checklist (if applicable)
 
