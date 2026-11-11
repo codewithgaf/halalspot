@@ -16,17 +16,17 @@ HalalSpot is a halal restaurant discovery platform designed to help people find 
 
 ## Technology Stack
 
-| Layer | Technology |
-|---|---|
-| Backend | PHP, Laravel |
-| Frontend | React, TypeScript |
-| Server-driven SPA | Inertia.js |
-| Styling | Tailwind CSS |
-| Database | PostgreSQL |
-| Testing | PHPUnit or Pest |
-| Version Control | Git and GitHub |
-| CI/CD | GitHub Actions |
-| Development OS | Fedora Linux |
+| Layer             | Technology        |
+| ----------------- | ----------------- |
+| Backend           | PHP, Laravel      |
+| Frontend          | React, TypeScript |
+| Server-driven SPA | Inertia.js        |
+| Styling           | Tailwind CSS      |
+| Database          | PostgreSQL        |
+| Testing           | PHPUnit or Pest   |
+| Version Control   | Git and GitHub    |
+| CI/CD             | GitHub Actions    |
+| Development OS    | Fedora Linux      |
 
 **Architecture:** Modular monolith.
 
@@ -35,28 +35,33 @@ The technologies above represent the intended stack. Individual integrations wil
 ## MVP Features
 
 ### Restaurant Discovery
+
 - Browse restaurant listings.
 - Search restaurants by name or location.
 - Filter restaurants by available halal information.
 - View restaurant details.
 
 ### Halal Information
+
 - Display halal certification evidence when available.
 - Identify restaurant self-declared halal claims.
 - Clearly display unknown or unverified halal status.
 - Record evidence sources and verification dates where applicable.
 
 ### User Accounts
+
 - User registration and authentication.
 - Profile management.
 - Authorized access to protected features.
 
 ### Reviews
+
 - Submit restaurant reviews.
 - View community feedback.
 - Apply moderation and authorization rules.
 
 ### Administration
+
 - Manage restaurant records.
 - Review submitted halal information.
 - Moderate user-generated content.
@@ -66,6 +71,7 @@ These features are planned and should not be considered implemented until verifi
 ## Local Development
 
 ### Prerequisites
+
 - Compatible PHP version
 - Composer
 - Node.js and npm
