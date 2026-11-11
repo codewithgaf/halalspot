@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import SiteHeader from '@/components/halalspot/site-header';
 
 type PublicLayoutProps = {
     children: ReactNode;
@@ -6,8 +7,12 @@ type PublicLayoutProps = {
 
 export default function PublicLayout({ children }: PublicLayoutProps) {
     return (
-        <div className="min-h-screen bg-background text-foreground">
-            <main id="main-content">{children}</main>
+        <div className="flex min-h-screen flex-col bg-background text-foreground">
+            <SiteHeader />
+
+            <main id="main-content" className="flex-1">
+                {children}
+            </main>
         </div>
     );
 }
