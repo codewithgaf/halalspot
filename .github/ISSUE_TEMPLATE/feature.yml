@@ -1,0 +1,69 @@
+
+name: "Feature Request"
+description: "Propose a HalalSpot feature or improvement"
+title: "[Feature] "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve HalalSpot.
+        Please complete the sections below.
+
+  - type: input
+    id: requirement-id
+    attributes:
+      label: Requirement ID
+      description: Reference the approved PRD or SRS.
+      placeholder: "Example: F-01"
+    validations:
+      required: true
+
+  - type: textarea
+    id: user-story
+    attributes:
+      label: User Story
+      placeholder: |
+        As a visitor,
+        I want to search halal restaurants,
+        so that I can find suitable dining options.
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance Criteria
+      description: Define observable, testable outcomes.
+      placeholder: |
+        - [ ] Search results match the entered query.
+        - [ ] Empty results display a helpful message.
+        - [ ] The layout works on mobile and desktop.
+    validations:
+      required: true
+
+  - type: textarea
+    id: implementation-notes
+    attributes:
+      label: Implementation Notes
+      description: Relevant modules, dependencies, or constraints.
+    validations:
+      required: false
+
+  - type: textarea
+    id: testing
+    attributes:
+      label: Testing Requirements
+      description: Describe automated and manual verification.
+    validations:
+      required: true
+
+  - type: textarea
+    id: security
+    attributes:
+      label: Security and Privacy Considerations
+      description: |
+        Include validation, authorization, privacy,
+        and halal evidence handling where applicable.
+    validations:
+      required: true
