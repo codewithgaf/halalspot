@@ -9,6 +9,7 @@ import {
     SheetTrigger,
 } from '@/components/ui/sheet';
 import { dashboard, home, login, register } from '@/routes';
+import PageContainer from '@/components/halalspot/page-container';
 
 export default function SiteHeader() {
     const { auth } = usePage().props;
@@ -16,7 +17,7 @@ export default function SiteHeader() {
 
     return (
         <header className="border-b border-border bg-background">
-            <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+            <PageContainer className="flex h-16 items-center justify-between">
                 {/* HalalSpot brand */}
                 <Link
                     href={home()}
@@ -128,7 +129,7 @@ export default function SiteHeader() {
                         </SheetContent>
                     </Sheet>
                 </div>
-            </div>
+            </PageContainer>
         </header>
     );
 }
