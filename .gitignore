@@ -43,3 +43,8 @@ yarn-error.log
 /boost.json
 /opencode.json
 /opencode.jsonc
+# Playwright generated artifacts
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
