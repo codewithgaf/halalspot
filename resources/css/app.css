@@ -61,6 +61,14 @@
     --color-sidebar-ring: var(--sidebar-ring);
 }
 
+/* HalalSpot brand tokens */
+@theme inline {
+    --color-brand: var(--hs-green-600);
+    --color-brand-dark: var(--hs-green-800);
+    --color-brand-surface: var(--hs-surface);
+    --color-brand-gold: var(--hs-gold-400);
+}
+
 :root {
     --background: oklch(1 0 0);
     --foreground: oklch(0.145 0 0);
@@ -95,6 +103,11 @@
     --sidebar-accent-foreground: oklch(0.205 0 0);
     --sidebar-border: oklch(0.922 0 0);
     --sidebar-ring: oklch(0.87 0 0);
+    /* HalalSpot v1.1 approved brand palette */
+    --hs-green-600: #167a53;
+    --hs-green-800: #105c42;
+    --hs-surface: #f8faf8;
+    --hs-gold-400: #e9b65a;
 }
 
 .dark {
