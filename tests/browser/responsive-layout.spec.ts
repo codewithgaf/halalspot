@@ -17,7 +17,8 @@ for (const viewport of viewports) {
 
         await expect(
             page.getByRole('heading', {
-                name: 'Find your next halal spot.',
+                level: 1,
+                name: 'Find halal food worth going out for.',
             }),
         ).toBeVisible();
 
