@@ -1,4 +1,5 @@
 import PageContainer from '@/components/halalspot/page-container';
+import RestaurantSearch from '@/components/halalspot/restaurant-search';
 
 export default function HomepageHero() {
     return (
@@ -35,6 +36,7 @@ export default function HomepageHero() {
                         </p>
                     </div>
                 </div>
+                <RestaurantSearch />
             </PageContainer>
         </section>
     );
