@@ -1,5 +1,6 @@
 import PageContainer from '@/components/halalspot/page-container';
 import RestaurantSearch from '@/components/halalspot/restaurant-search';
+import LocationSelector from '@/components/halalspot/location-selector';
 
 export default function HomepageHero() {
     return (
@@ -36,7 +37,10 @@ export default function HomepageHero() {
                         </p>
                     </div>
                 </div>
-                <RestaurantSearch />
+                <div className="mt-8 flex w-full min-w-0 items-start gap-2">
+                    <RestaurantSearch />
+                    <LocationSelector />
+                </div>
             </PageContainer>
         </section>
     );
