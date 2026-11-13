@@ -1,35 +1,34 @@
-import { useState } from 'react';
 import CuisineFilter from '@/components/halalspot/cuisine-filter';
 import HalalStatusFilter from '@/components/halalspot/halal-status-filter';
-import {
-    DEFAULT_RESTAURANT_FILTERS,
-    type RestaurantFilters,
-} from '@/types/halalspot/restaurant-filters';
+import type { RestaurantFilters } from '@/types/halalspot/restaurant-filters';
 
-export default function RestaurantFilterControls() {
-    const [filters, setFilters] = useState<RestaurantFilters>({
-        cuisines: [...DEFAULT_RESTAURANT_FILTERS.cuisines],
-        halalStatuses: [...DEFAULT_RESTAURANT_FILTERS.halalStatuses],
-    });
+type RestaurantFilterControlsProps = {
+    filters: RestaurantFilters;
+    onChange: (filters: RestaurantFilters) => void;
+};
 
+export default function RestaurantFilterControls({
+    filters,
+    onChange,
+}: RestaurantFilterControlsProps) {
     function updateCuisines(cuisines: RestaurantFilters['cuisines']) {
-        setFilters((previous) => ({
-            ...previous,
+        onChange({
+            ...filters,
             cuisines,
-        }));
+        });
     }
 
     function updateHalalStatuses(
         halalStatuses: RestaurantFilters['halalStatuses'],
     ) {
-        setFilters((previous) => ({
-            ...previous,
+        onChange({
+            ...filters,
             halalStatuses,
-        }));
+        });
     }
 
     function clearFilters() {
-        setFilters({
+        onChange({
             cuisines: [],
             halalStatuses: [],
         });
@@ -60,6 +59,7 @@ export default function RestaurantFilterControls() {
                 selected={filters.cuisines}
                 onChange={updateCuisines}
             />
+
             <HalalStatusFilter
                 selected={filters.halalStatuses}
                 onChange={updateHalalStatuses}
