@@ -12,12 +12,21 @@ import {
 } from '@/types/halalspot/restaurant-filters';
 
 export default function Welcome() {
+    const [searchQuery, setSearchQuery] = useState('');
+
     const [filters, setFilters] = useState<RestaurantFilters>({
         cuisines: [...DEFAULT_RESTAURANT_FILTERS.cuisines],
         halalStatuses: [...DEFAULT_RESTAURANT_FILTERS.halalStatuses],
     });
 
     const filteredRestaurants = DEMO_RESTAURANTS.filter((restaurant) => {
+        const normalizedQuery = searchQuery.trim().toLowerCase();
+
+        const matchesSearch =
+            normalizedQuery.length === 0 ||
+            restaurant.name.toLowerCase().includes(normalizedQuery) ||
+            restaurant.cuisine.toLowerCase().includes(normalizedQuery);
+
         const matchesCuisine =
             filters.cuisines.length === 0 ||
             filters.cuisines.includes(restaurant.cuisine);
@@ -26,14 +35,17 @@ export default function Welcome() {
             filters.halalStatuses.length === 0 ||
             filters.halalStatuses.includes(restaurant.halalStatus);
 
-        return matchesCuisine && matchesHalalStatus;
+        return matchesSearch && matchesCuisine && matchesHalalStatus;
     });
 
     return (
         <PublicLayout>
             <Head title="Discover Halal Places" />
 
-            <HomepageHero />
+            <HomepageHero
+                appliedQuery={searchQuery}
+                onSearch={setSearchQuery}
+            />
 
             <PageContainer>
                 <RestaurantFilterControls

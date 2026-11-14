@@ -2,7 +2,15 @@ import PageContainer from '@/components/halalspot/page-container';
 import RestaurantSearch from '@/components/halalspot/restaurant-search';
 import LocationSelector from '@/components/halalspot/location-selector';
 
-export default function HomepageHero() {
+type HomepageHeroProps = {
+    appliedQuery: string;
+    onSearch: (query: string) => void;
+};
+
+export default function HomepageHero({
+    appliedQuery,
+    onSearch,
+}: HomepageHeroProps) {
     return (
         <section className="bg-brand/5 py-12 sm:py-16 lg:py-20">
             <PageContainer>
@@ -30,15 +38,13 @@ export default function HomepageHero() {
                             <span>✓ Community reviews</span>
                         </div>
                     </div>
-
-                    <div className="flex aspect-4/3 items-center justify-center rounded-2xl bg-brand/10">
-                        <p className="text-sm text-brand">
-                            Food photography coming next
-                        </p>
-                    </div>
                 </div>
+
                 <div className="mt-8 flex w-full min-w-0 items-start gap-2">
-                    <RestaurantSearch />
+                    <RestaurantSearch
+                        appliedQuery={appliedQuery}
+                        onSearch={onSearch}
+                    />
                     <LocationSelector />
                 </div>
             </PageContainer>
