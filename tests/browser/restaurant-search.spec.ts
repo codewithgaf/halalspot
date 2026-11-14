@@ -5,7 +5,7 @@ test('search input is accessible and visible', async ({ page }) => {
 
     await expect(
         page.getByRole('searchbox', {
-            name: 'Search restaurants, dishes, or cuisines',
+            name: 'Search restaurants or cuisines',
         }),
     ).toBeVisible();
 });
@@ -14,7 +14,7 @@ test('search button requires a non-empty query', async ({ page }) => {
     await page.goto('/');
 
     const searchInput = page.getByRole('searchbox', {
-        name: 'Search restaurants, dishes, or cuisines',
+        name: 'Search restaurants or cuisines',
     });
     const searchButton = page.getByRole('button', {
         name: 'Search',
@@ -37,7 +37,7 @@ test('submitting a query keeps the user on the homepage', async ({ page }) => {
     await page.goto('/');
 
     const searchInput = page.getByRole('searchbox', {
-        name: 'Search restaurants, dishes, or cuisines',
+        name: 'Search restaurants or cuisines',
     });
 
     await searchInput.fill('Chicken biryani');
