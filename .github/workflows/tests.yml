@@ -84,5 +84,8 @@ jobs:
           composer lint:check
           composer types:check
 
+      - name: Build frontend assets
+        run: npm run build
+
       - name: Run PostgreSQL tests
         run: composer test:pgsql
