@@ -4,6 +4,7 @@
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Route;
 
 uses(RefreshDatabase::class);
 
@@ -44,4 +45,39 @@ it('does not give administrators certification verification by default', functio
     $admin->assignRole('administrator');
 
     expect($admin->can('certifications.verify'))->toBeFalse();
+});
+
+beforeEach(function () {
+    Route::middleware(['web', 'auth'])
+        ->get('/_test/rbac/places-publish', function () {
+            abort_unless(
+                auth()->user()->can('places.publish'),
+                403
+            );
+
+            return response('Authorized');
+        });
+});
+
+it('redirects unauthenticated users from a protected route', function () {
+    $this->get('/_test/rbac/places-publish')
+        ->assertRedirect(route('login'));
+});
+
+it('forbids ordinary users from publishing places', function () {
+    $user = User::factory()->create();
+    $user->assignRole('user');
+
+    $this->actingAs($user)
+        ->get('/_test/rbac/places-publish')
+        ->assertForbidden();
+});
+
+it('allows administrators to access a publishing route', function () {
+    $admin = User::factory()->create();
+    $admin->assignRole('administrator');
+
+    $this->actingAs($admin)
+        ->get('/_test/rbac/places-publish')
+        ->assertOk();
 });
