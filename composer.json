@@ -92,7 +92,9 @@
         ],
         "pre-package-uninstall": [
             "Illuminate\\Foundation\\ComposerScripts::prePackageUninstall"
-        ]
+        ],
+        "test:sqlite": "APP_ENV=testing ./vendor/bin/pest --configuration=phpunit.xml",
+        "test:pgsql": "APP_ENV=testing ./vendor/bin/pest --configuration=phpunit.pgsql.xml"
     },
     "extra": {
         "laravel": {
