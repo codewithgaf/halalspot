@@ -81,3 +81,13 @@ it('allows administrators to access a publishing route', function () {
         ->get('/_test/rbac/places-publish')
         ->assertOk();
 });
+
+it('does not let the administrator role inherit certification verification', function () {
+    $this->seed(RolePermissionSeeder::class);
+
+    $admin = User::factory()->create();
+    $admin->assignRole('administrator');
+
+    expect($admin->can('roles.manage'))->toBeTrue()
+        ->and($admin->can('certifications.verify'))->toBeFalse();
+});
