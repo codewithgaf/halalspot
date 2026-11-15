@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-require dirname(__DIR__) . '/vendor/autoload.php';
+require dirname(__DIR__).'/vendor/autoload.php';
 
 use Illuminate\Contracts\Console\Kernel;
+use Illuminate\Foundation\Bootstrap\HandleExceptions;
 use Illuminate\Support\Facades\DB;
 
 $expectedDatabase = 'halalspot_testing_clean';
@@ -20,7 +21,7 @@ if (getenv('APP_ENV') !== 'testing' && ($_ENV['APP_ENV'] ?? null) !== 'testing')
     $fail('APP_ENV must be testing.');
 }
 
-$app = require dirname(__DIR__) . '/bootstrap/app.php';
+$app = require dirname(__DIR__).'/bootstrap/app.php';
 
 $app->make(Kernel::class)->bootstrap();
 
@@ -43,7 +44,7 @@ try {
     $identity = DB::connection('pgsql')->selectOne(
         'SELECT current_database() AS database, current_user AS username'
     );
-} catch (\Throwable $exception) {
+} catch (Throwable $exception) {
     $fail('Cannot verify the PostgreSQL connection.');
 }
 
@@ -54,6 +55,6 @@ if (
     $fail('The connected PostgreSQL database identity is unsafe.');
 }
 
-\Illuminate\Foundation\Bootstrap\HandleExceptions::flushState();
+HandleExceptions::flushState();
 
 fwrite(STDOUT, "PostgreSQL test safety check passed.\n");

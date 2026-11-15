@@ -3,6 +3,7 @@
 namespace Tests;
 
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use Illuminate\Support\Facades\DB;
 use Laravel\Fortify\Features;
 
 abstract class TestCase extends BaseTestCase
@@ -13,6 +14,7 @@ abstract class TestCase extends BaseTestCase
             $this->markTestSkipped($message ?? "Fortify feature [{$feature}] is not enabled.");
         }
     }
+
     /**
      * @return array<string, mixed>
      */
@@ -69,7 +71,7 @@ abstract class TestCase extends BaseTestCase
             );
         }
 
-        $identity = \Illuminate\Support\Facades\DB::connection('pgsql')
+        $identity = DB::connection('pgsql')
             ->selectOne(
                 'SELECT current_database() AS database, current_user AS username'
             );
