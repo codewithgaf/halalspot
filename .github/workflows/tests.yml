@@ -1,3 +1,4 @@
+
 name: tests
 
 on:
@@ -11,6 +12,7 @@ permissions:
 
 jobs:
   ci:
+    name: Application CI Checks
     runs-on: ubuntu-latest
 
     steps:
@@ -23,6 +25,7 @@ jobs:
         uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
         with:
           php-version: '8.4'
+          extensions: sqlite3, pdo_sqlite
           tools: composer:v2
           coverage: none
 
@@ -36,6 +39,7 @@ jobs:
 
       - name: Run CI Checks
         run: composer ci:check
+
   e2e:
     name: Browser E2E Tests
     runs-on: ubuntu-latest
@@ -72,3 +76,58 @@ jobs:
 
       - name: Run browser tests
         run: npm run test:e2e
+
+  pgsql:
+    name: PostgreSQL Integration Tests
+    runs-on: ubuntu-latest
+
+    timeout-minutes: 15
+
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_DB: halalspot_testing_clean
+          POSTGRES_USER: halalspot_testing_user
+          POSTGRES_PASSWORD: ci_test_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U halalspot_testing_user -d halalspot_testing_clean"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      APP_ENV: testing
+      DB_CONNECTION: pgsql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 5432
+      DB_DATABASE: halalspot_testing_clean
+      DB_USERNAME: halalspot_testing_user
+      DB_PASSWORD: ci_test_password
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
+        with:
+          php-version: '8.4'
+          extensions: pgsql, pdo_pgsql
+          tools: composer:v2
+          coverage: none
+
+      - name: Install PHP dependencies
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Prepare application
+        run: |
+          cp .env.example .env
+          php artisan key:generate --force
+
+      - name: Run PostgreSQL integration tests
+        run: composer test:pgsql

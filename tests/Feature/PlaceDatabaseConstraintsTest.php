@@ -31,6 +31,11 @@ it('allows a valid draft without coordinates', function () {
 });
 
 it('rejects an invalid latitude', function () {
+    if (DB::getDriverName() !== 'pgsql') {
+        $this->markTestSkipped(
+            'Requires PostgreSQL CHECK constraints.'
+        );
+    }
     expect(fn () => insertTestPlace([
         'latitude' => 91,
         'longitude' => 124,
@@ -38,6 +43,11 @@ it('rejects an invalid latitude', function () {
 });
 
 it('rejects an invalid longitude', function () {
+    if (DB::getDriverName() !== 'pgsql') {
+        $this->markTestSkipped(
+            'Requires PostgreSQL CHECK constraints.'
+        );
+    }
     expect(fn () => insertTestPlace([
         'latitude' => 8,
         'longitude' => 181,
@@ -45,6 +55,11 @@ it('rejects an invalid longitude', function () {
 });
 
 it('rejects incomplete coordinate pairs', function () {
+    if (DB::getDriverName() !== 'pgsql') {
+        $this->markTestSkipped(
+            'Requires PostgreSQL CHECK constraints.'
+        );
+    }
     expect(fn () => insertTestPlace([
         'latitude' => 8,
         'longitude' => null,
@@ -52,12 +67,22 @@ it('rejects incomplete coordinate pairs', function () {
 });
 
 it('rejects an invalid publication status', function () {
+    if (DB::getDriverName() !== 'pgsql') {
+        $this->markTestSkipped(
+            'Requires PostgreSQL CHECK constraints.'
+        );
+    }
     expect(fn () => insertTestPlace([
         'publication_status' => 'invalid',
     ]))->toThrow(QueryException::class);
 });
 
 it('rejects publication without coordinates', function () {
+    if (DB::getDriverName() !== 'pgsql') {
+        $this->markTestSkipped(
+            'Requires PostgreSQL CHECK constraints.'
+        );
+    }
     expect(fn () => insertTestPlace([
         'address' => 'Sample Street',
         'publication_status' => 'published',
@@ -66,6 +91,11 @@ it('rejects publication without coordinates', function () {
 });
 
 it('rejects publication without an address', function () {
+    if (DB::getDriverName() !== 'pgsql') {
+        $this->markTestSkipped(
+            'Requires PostgreSQL CHECK constraints.'
+        );
+    }
     expect(fn () => insertTestPlace([
         'latitude' => 8,
         'longitude' => 124,
