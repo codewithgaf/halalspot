@@ -1,40 +1,64 @@
 import { expect, test } from '@playwright/test';
 
-test('search filters restaurants by name', async ({ page }) => {
+test.beforeEach(async ({ page }) => {
     await page.goto('/');
+});
 
+test('search filters published restaurants by name', async ({ page }) => {
     const search = page.getByRole('searchbox', {
-        name: 'Search restaurants or cuisines',
+        name: 'Search restaurants or cities',
     });
 
     await search.fill('shawarma');
     await search.press('Enter');
 
     await expect(page.getByText('Demo Shawarma House')).toBeVisible();
-
     await expect(page.getByText('Demo Indian Table')).toHaveCount(0);
+    await expect(page.getByText('Demo Filipino Kitchen')).toHaveCount(0);
 });
 
-test('search matches cuisines regardless of case', async ({ page }) => {
-    await page.goto('/');
-
+test('search matches restaurant names regardless of case', async ({ page }) => {
     const search = page.getByRole('searchbox', {
-        name: 'Search restaurants or cuisines',
+        name: 'Search restaurants or cities',
     });
 
     await search.fill('INDIAN');
     await search.press('Enter');
 
     await expect(page.getByText('Demo Indian Table')).toBeVisible();
-
     await expect(page.getByText('Demo Shawarma House')).toHaveCount(0);
 });
 
-test('clearing search restores all demo restaurants', async ({ page }) => {
-    await page.goto('/');
-
+test('search filters published restaurants by city', async ({ page }) => {
     const search = page.getByRole('searchbox', {
-        name: 'Search restaurants or cuisines',
+        name: 'Search restaurants or cities',
+    });
+
+    await search.fill('Davao City');
+    await search.press('Enter');
+
+    await expect(page.getByText('Demo Indian Table')).toBeVisible();
+    await expect(page.getByText('Demo Filipino Kitchen')).toHaveCount(0);
+    await expect(page.getByText('Demo Shawarma House')).toHaveCount(0);
+});
+
+test('search never exposes draft or archived restaurants', async ({ page }) => {
+    const search = page.getByRole('searchbox', {
+        name: 'Search restaurants or cities',
+    });
+
+    await search.fill('Restaurant');
+    await search.press('Enter');
+
+    await expect(page.getByText('Draft Restaurant')).toHaveCount(0);
+    await expect(page.getByText('Archived Restaurant')).toHaveCount(0);
+
+    await expect(page.getByText('No restaurants found')).toBeVisible();
+});
+
+test('clearing search restores published restaurants', async ({ page }) => {
+    const search = page.getByRole('searchbox', {
+        name: 'Search restaurants or cities',
     });
 
     await search.fill('shawarma');
@@ -46,22 +70,20 @@ test('clearing search restores all demo restaurants', async ({ page }) => {
 
     await expect(search).toHaveValue('');
 
-    for (const restaurant of [
+    for (const name of [
         'Demo Filipino Kitchen',
-        'Demo Shawarma House',
         'Demo Indian Table',
+        'Demo Shawarma House',
     ]) {
-        await expect(page.getByText(restaurant)).toBeVisible();
+        await expect(page.getByText(name)).toBeVisible();
     }
 });
 
-test('clear remains available after manually deleting the query', async ({
+test('clear remains available after deleting search input', async ({
     page,
 }) => {
-    await page.goto('/');
-
     const search = page.getByRole('searchbox', {
-        name: 'Search restaurants or cuisines',
+        name: 'Search restaurants or cities',
     });
 
     await search.fill('shawarma');
@@ -78,56 +100,14 @@ test('clear remains available after manually deleting the query', async ({
     await expect(page.getByText('Demo Indian Table')).toBeVisible();
 });
 
-test('search combines with halal status filters', async ({ page }) => {
-    await page.goto('/');
-
+test('search with no matches shows an empty state', async ({ page }) => {
     const search = page.getByRole('searchbox', {
-        name: 'Search restaurants or cuisines',
+        name: 'Search restaurants or cities',
     });
 
-    await search.fill('Indian');
+    await search.fill('Nonexistent Restaurant');
     await search.press('Enter');
 
-    await expect(page.getByText('Demo Indian Table')).toBeVisible();
-
-    await page
-        .getByRole('checkbox', {
-            name: 'Unknown status',
-            exact: true,
-        })
-        .check();
-
-    await expect(page.getByText('Demo Indian Table')).toBeVisible();
-
-    await expect(page.getByText('Demo Filipino Kitchen')).toHaveCount(0);
-});
-
-test('clearing search preserves halal status filters', async ({ page }) => {
-    await page.goto('/');
-
-    await page
-        .getByRole('checkbox', {
-            name: 'Unknown status',
-            exact: true,
-        })
-        .check();
-
-    const search = page.getByRole('searchbox', {
-        name: 'Search restaurants or cuisines',
-    });
-
-    await search.fill('Indian');
-    await search.press('Enter');
-
-    await page
-        .getByRole('button', {
-            name: 'Clear search',
-        })
-        .click();
-
-    await expect(page.getByText('Demo Indian Table')).toBeVisible();
-
-    await expect(page.getByText('Demo Shawarma House')).toBeVisible();
-
-    await expect(page.getByText('Demo Filipino Kitchen')).toHaveCount(0);
+    await expect(page.getByText('No restaurants found')).toBeVisible();
+    await expect(page.getByText('0 restaurants found')).toBeVisible();
 });

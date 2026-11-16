@@ -37,7 +37,7 @@ export default function RestaurantSearch({
                 className="relative w-full min-w-0"
             >
                 <label htmlFor="restaurant-search" className="sr-only">
-                    Search restaurants or cuisines
+                    Search restaurants or cities
                 </label>
 
                 <input
@@ -45,7 +45,7 @@ export default function RestaurantSearch({
                     type="search"
                     value={query}
                     onChange={(event) => setQuery(event.target.value)}
-                    placeholder="Restaurant or cuisine..."
+                    placeholder="Restaurant or city..."
                     className="h-14 w-full min-w-0 rounded-2xl border border-border bg-background py-3 pr-16 pl-4 text-base text-foreground shadow-sm transition-shadow placeholder:text-muted-foreground focus-visible:border-brand focus-visible:ring-2 focus-visible:ring-brand/25 focus-visible:outline-none"
                 />
 
