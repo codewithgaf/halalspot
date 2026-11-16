@@ -4,106 +4,61 @@ test.beforeEach(async ({ page }) => {
     await page.goto('/');
 });
 
-test('cuisine chips support multiple selections', async ({ page }) => {
-    const filipino = page.getByRole('button', {
-        name: 'Filipino',
-        exact: true,
-    });
+test('unsupported cuisine filters are not displayed', async ({ page }) => {
+    await expect(
+        page.getByRole('button', {
+            name: 'Filipino',
+            exact: true,
+        }),
+    ).toHaveCount(0);
 
-    const indian = page.getByRole('button', {
-        name: 'Indian',
-        exact: true,
-    });
-
-    await expect(filipino).toHaveAttribute('aria-pressed', 'false');
-
-    await filipino.click();
-    await indian.click();
-
-    await expect(filipino).toHaveAttribute('aria-pressed', 'true');
-    await expect(indian).toHaveAttribute('aria-pressed', 'true');
-
-    await filipino.click();
-
-    await expect(filipino).toHaveAttribute('aria-pressed', 'false');
-    await expect(indian).toHaveAttribute('aria-pressed', 'true');
+    await expect(
+        page.getByRole('button', {
+            name: 'Indian',
+            exact: true,
+        }),
+    ).toHaveCount(0);
 });
 
-test('halal statuses support independent selections', async ({ page }) => {
-    const verified = page.getByRole('checkbox', {
-        name: 'Verified certification',
-    });
+test('unsupported halal certification filters are not displayed', async ({
+    page,
+}) => {
+    await expect(
+        page.getByRole('checkbox', {
+            name: 'Verified certification',
+        }),
+    ).toHaveCount(0);
 
-    const declared = page.getByRole('checkbox', {
-        name: 'Self-declared halal',
-    });
+    await expect(
+        page.getByRole('checkbox', {
+            name: 'Self-declared halal',
+        }),
+    ).toHaveCount(0);
 
-    const unknown = page.getByRole('checkbox', {
-        name: 'Unknown status',
-    });
-
-    await verified.check();
-    await declared.check();
-
-    await expect(verified).toBeChecked();
-    await expect(declared).toBeChecked();
-    await expect(unknown).not.toBeChecked();
-
-    await verified.uncheck();
-
-    await expect(verified).not.toBeChecked();
-    await expect(declared).toBeChecked();
+    await expect(
+        page.getByRole('checkbox', {
+            name: 'Unknown status',
+        }),
+    ).toHaveCount(0);
 });
 
-test('clear filters resets both filter groups', async ({ page }) => {
-    const filipino = page.getByRole('button', {
-        name: 'Filipino',
-        exact: true,
+test('public discovery remains available on mobile', async ({ page }) => {
+    await page.setViewportSize({
+        width: 320,
+        height: 720,
     });
 
-    const verified = page.getByRole('checkbox', {
-        name: 'Verified certification',
-    });
+    await expect(
+        page.getByRole('searchbox', {
+            name: 'Search restaurants or cities',
+        }),
+    ).toBeVisible();
 
-    await filipino.click();
-    await verified.check();
-
-    await page.getByRole('button', { name: 'Clear filters' }).click();
-
-    await expect(filipino).toHaveAttribute('aria-pressed', 'false');
-    await expect(verified).not.toBeChecked();
-});
-
-test('changing halal status preserves cuisine selections', async ({ page }) => {
-    const filipino = page.getByRole('button', {
-        name: 'Filipino',
-        exact: true,
-    });
-
-    await filipino.click();
-
-    await page.getByRole('checkbox', { name: 'Unknown status' }).check();
-
-    await expect(filipino).toHaveAttribute('aria-pressed', 'true');
-});
-
-test('filters remain usable on mobile', async ({ page }) => {
-    await page.setViewportSize({ width: 320, height: 720 });
-
-    const filipino = page.getByRole('button', {
-        name: 'Filipino',
-        exact: true,
-    });
-
-    const verified = page.getByRole('checkbox', {
-        name: 'Verified certification',
-    });
-
-    await filipino.click();
-    await verified.check();
-
-    await expect(filipino).toHaveAttribute('aria-pressed', 'true');
-    await expect(verified).toBeChecked();
+    await expect(
+        page.getByRole('region', {
+            name: 'Restaurant results',
+        }),
+    ).toBeVisible();
 
     const hasHorizontalOverflow = await page.evaluate(
         () => document.documentElement.scrollWidth > window.innerWidth,

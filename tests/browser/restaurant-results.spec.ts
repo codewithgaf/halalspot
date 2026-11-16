@@ -1,58 +1,66 @@
 import { expect, test } from '@playwright/test';
 
-test('homepage displays three demo restaurants', async ({ page }) => {
+test.beforeEach(async ({ page }) => {
     await page.goto('/');
+});
+
+test('homepage displays the three published E2E restaurants', async ({
+    page,
+}) => {
+    const results = page.getByRole('region', {
+        name: 'Restaurant results',
+    });
+
+    await expect(results.getByRole('article')).toHaveCount(3);
+
+    await expect(results.getByText('3 restaurants found')).toBeVisible();
+
+    for (const name of [
+        'Demo Filipino Kitchen',
+        'Demo Indian Table',
+        'Demo Shawarma House',
+    ]) {
+        await expect(results.getByText(name)).toBeVisible();
+    }
+});
+
+test('draft and archived restaurants are excluded from public discovery', async ({
+    page,
+}) => {
+    await expect(page.getByText('Draft Restaurant')).toHaveCount(0);
+
+    await expect(page.getByText('Archived Restaurant')).toHaveCount(0);
+});
+
+test('published restaurants do not imply halal certification', async ({
+    page,
+}) => {
+    const results = page.getByRole('region', {
+        name: 'Restaurant results',
+    });
+
+    await expect(results.getByText('Verified certification')).toHaveCount(0);
+
+    await expect(results.getByText('Self-declared halal')).toHaveCount(0);
+});
+
+test('published restaurant cards remain visible on mobile', async ({
+    page,
+}) => {
+    await page.setViewportSize({
+        width: 390,
+        height: 844,
+    });
 
     const results = page.getByRole('region', {
         name: 'Restaurant results',
     });
 
     await expect(results.getByRole('article')).toHaveCount(3);
-    await expect(results.getByText('3 restaurants found')).toBeVisible();
-});
 
-test('unknown status filters restaurant results', async ({ page }) => {
-    await page.goto('/');
+    const hasHorizontalOverflow = await page.evaluate(
+        () => document.documentElement.scrollWidth > window.innerWidth,
+    );
 
-    await page
-        .getByRole('checkbox', {
-            name: 'Unknown status',
-        })
-        .check();
-
-    const results = page.getByRole('region', {
-        name: 'Restaurant results',
-    });
-
-    await expect(results.getByRole('article')).toHaveCount(2);
-    await expect(results.getByText('Demo Shawarma House')).toBeVisible();
-    await expect(results.getByText('Demo Indian Table')).toBeVisible();
-    await expect(results.getByText('Demo Filipino Kitchen')).toHaveCount(0);
-});
-
-test('verified certification shows empty results', async ({ page }) => {
-    await page.goto('/');
-
-    await page
-        .getByRole('checkbox', {
-            name: 'Verified certification',
-        })
-        .check();
-
-    await expect(page.getByText('No restaurants found')).toBeVisible();
-});
-
-test('save buttons are visible on mobile', async ({ page }) => {
-    await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto('/');
-
-    const saveButtons = page.getByRole('button', {
-        name: /^Save Demo/,
-    });
-
-    await expect(saveButtons).toHaveCount(3);
-
-    for (const button of await saveButtons.all()) {
-        await expect(button).toBeVisible();
-    }
+    expect(hasHorizontalOverflow).toBe(false);
 });
