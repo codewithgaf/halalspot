@@ -12,4 +12,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::get('/', [PublicPlaceController::class, 'index'])
     ->name('home');
 
+Route::get('/restaurants/{slug}', [PublicPlaceController::class, 'show']
+)->name('restaurants.show');
+
 require __DIR__.'/settings.php';
