@@ -36,4 +36,28 @@ class PublicPlaceController extends Controller
             'places' => $places,
         ]);
     }
+
+    public function show(string $slug): Response
+    {
+        $place = Place::query()
+            ->where('slug', $slug)
+            ->where('publication_status', 'published')
+            ->firstOrFail();
+
+        return Inertia::render('restaurants/show', [
+            'place' => [
+                'id' => (string) $place->id,
+                'name' => $place->name,
+                'slug' => $place->slug,
+                'description' => $place->description ?? '',
+                'address' => $place->address,
+                'city' => $place->city,
+                'province' => $place->province,
+                'countryCode' => $place->country_code,
+                'latitude' => $place->latitude,
+                'longitude' => $place->longitude,
+                'imageUrl' => null,
+            ],
+        ]);
+    }
 }

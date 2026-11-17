@@ -1,5 +1,6 @@
 import { MapPin, UtensilsCrossed } from 'lucide-react';
 import type { PublicPlace } from '@/types/halalspot/public-place';
+import { Link } from '@inertiajs/react';
 
 type PublicPlaceCardProps = {
     place: PublicPlace;
@@ -41,6 +42,13 @@ export default function PublicPlaceCard({ place }: PublicPlaceCardProps) {
                 <p className="text-sm leading-6 text-muted-foreground">
                     {place.description || 'Description not yet available.'}
                 </p>
+
+                <Link
+                    href={`/restaurants/${encodeURIComponent(place.slug)}`}
+                    className="inline-flex min-h-11 items-center justify-center rounded-xl bg-brand px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+                >
+                    View details
+                </Link>
             </div>
         </article>
     );
