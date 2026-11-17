@@ -12,6 +12,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::get('/', [PublicPlaceController::class, 'index'])
     ->name('home');
 
+Route::inertia('/about', 'about')->name('about');
+
 Route::get('/restaurants/{slug}', [PublicPlaceController::class, 'show']
 )->name('restaurants.show');
 
