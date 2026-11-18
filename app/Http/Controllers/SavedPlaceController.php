@@ -39,4 +39,19 @@ class SavedPlaceController extends Controller
 
         return back();
     }
+
+    /**
+     * Remove a place from the authenticated user's
+     * saved restaurant collection.
+     */
+    public function destroy(
+        Request $request,
+        Place $place
+    ): RedirectResponse {
+        $request->user()
+            ->savedPlaces()
+            ->detach($place->id);
+
+        return back();
+    }
 }

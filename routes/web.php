@@ -24,6 +24,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         '/saved-places/{place}',
         [SavedPlaceController::class, 'store']
     )->name('saved-places.store');
+
+    Route::delete(
+        '/saved-places/{place}',
+        [SavedPlaceController::class, 'destroy']
+    )->name('saved-places.destroy');
 });
 
 require __DIR__.'/settings.php';
