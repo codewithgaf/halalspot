@@ -53,6 +53,12 @@ class FortifyServiceProvider extends ServiceProvider
             'status' => $request->session()->get('status'),
         ]));
 
+        Fortify::verifyEmailView(
+            fn (Request $request) => Inertia::render('auth/verify-email', [
+                'status' => $request->session()->get('status'),
+            ])
+        );
+
         Fortify::resetPasswordView(fn (Request $request) => Inertia::render('auth/reset-password', [
             'email' => $request->email,
             'token' => $request->route('token'),
@@ -81,6 +87,5 @@ class FortifyServiceProvider extends ServiceProvider
 
             return Limit::perMinute(5)->by($throttleKey);
         });
-
     }
 }
