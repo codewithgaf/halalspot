@@ -31,6 +31,9 @@ export default defineConfig({
                 DB_CONNECTION: 'sqlite',
                 DB_DATABASE: resolve('playwright/.cache/database.sqlite'),
                 APP_CONFIG_CACHE: resolve('playwright/.cache/config.php'),
+                SESSION_DRIVER: 'file',
+                CACHE_STORE: 'array',
+                QUEUE_CONNECTION: 'sync',
             },
         },
         ...(!process.env.CI
