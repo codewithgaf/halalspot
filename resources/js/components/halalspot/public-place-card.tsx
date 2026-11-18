@@ -1,6 +1,7 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { Bookmark, MapPin, UtensilsCrossed } from 'lucide-react';
 
+import { useSavedPlaces } from '@/contexts/saved-places-context';
 import type { PublicPlace } from '@/types/halalspot/public-place';
 
 type PublicPlaceCardProps = {
@@ -12,9 +13,22 @@ export default function PublicPlaceCard({
     place,
     onSaveRequest,
 }: PublicPlaceCardProps) {
+    const { auth } = usePage().props;
+    const { savedIds, isLoading, error } = useSavedPlaces();
+
+    const canSavePlaces = auth.canSavePlaces;
+    const isSaved = canSavePlaces && savedIds.has(place.id);
+
+    // A failed request must not be mistaken for an empty collection.
+    const isBookmarkStateUnavailable =
+        canSavePlaces && (isLoading || error !== null);
+
+    const bookmarkLabel = isSaved
+        ? `Unsave ${place.name}`
+        : `Save ${place.name}`;
+
     return (
         <article className="overflow-hidden rounded-2xl border border-border bg-background shadow-sm transition-shadow hover:shadow-md">
-            {/* Restaurant image and bookmark */}
             <div className="relative flex aspect-video items-center justify-center bg-brand/10">
                 {place.imageUrl ? (
                     <img
@@ -29,19 +43,27 @@ export default function PublicPlaceCard({
                     />
                 )}
 
-                {/* Save restaurant action */}
                 <button
                     type="button"
-                    aria-label={`Save ${place.name}`}
-                    title={`Save ${place.name}`}
+                    aria-label={bookmarkLabel}
+                    title={
+                        isBookmarkStateUnavailable
+                            ? 'Saved places are loading or unavailable'
+                            : bookmarkLabel
+                    }
+                    aria-pressed={isSaved}
+                    disabled={isBookmarkStateUnavailable}
                     onClick={() => onSaveRequest?.(place)}
-                    className="absolute top-3 right-3 inline-flex size-11 items-center justify-center rounded-xl border border-border/70 bg-background/95 text-brand shadow-sm transition-colors hover:bg-brand hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand motion-reduce:transition-none"
+                    className="absolute top-3 right-3 inline-flex size-11 items-center justify-center rounded-xl border border-border/70 bg-background/95 text-brand shadow-sm transition-colors hover:bg-brand hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:cursor-not-allowed disabled:opacity-60 motion-reduce:transition-none"
                 >
-                    <Bookmark className="size-5" aria-hidden="true" />
+                    <Bookmark
+                        className="size-5"
+                        fill={isSaved ? 'currentColor' : 'none'}
+                        aria-hidden="true"
+                    />
                 </button>
             </div>
 
-            {/* Restaurant information */}
             <div className="space-y-4 p-4 sm:p-5">
                 <div>
                     <h3 className="text-lg font-bold text-foreground">
@@ -53,7 +75,6 @@ export default function PublicPlaceCard({
                             className="size-4 shrink-0"
                             aria-hidden="true"
                         />
-
                         <span>{place.city}</span>
                     </p>
                 </div>
@@ -62,7 +83,6 @@ export default function PublicPlaceCard({
                     {place.description || 'Description not yet available.'}
                 </p>
 
-                {/* Restaurant details */}
                 <Link
                     href={`/restaurants/${encodeURIComponent(place.slug)}`}
                     className="inline-flex min-h-11 items-center justify-center rounded-xl bg-brand px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
