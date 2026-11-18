@@ -22,6 +22,13 @@ type SavedPlacesContextValue = {
     refreshSavedPlaces: () => void;
 };
 
+type SavedPlacesState = {
+    ownerKey: string | null;
+    savedPlaces: SavedPlace[];
+    isLoading: boolean;
+    error: string | null;
+};
+
 const SavedPlacesContext = createContext<SavedPlacesContextValue | null>(null);
 
 type SavedPlacesProviderProps = {
@@ -34,39 +41,78 @@ export function SavedPlacesProvider({ children }: SavedPlacesProviderProps) {
     const userId = auth.user?.id ?? null;
     const canSavePlaces = auth.canSavePlaces;
 
-    const [savedPlaces, setSavedPlaces] = useState<SavedPlace[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    /**
+     * Associate saved data with its authenticated owner.
+     *
+     * Null means no account is currently eligible to
+     * access the collection.
+     */
+    const ownerKey = userId !== null && canSavePlaces ? String(userId) : null;
+
+    const [state, setState] = useState<SavedPlacesState>({
+        ownerKey: null,
+        savedPlaces: [],
+        isLoading: false,
+        error: null,
+    });
+
     const [refreshVersion, setRefreshVersion] = useState(0);
 
     /**
-     * Request a fresh collection from the Laravel backend.
+     * Expose only data belonging to the current account.
      *
-     * This will be called after successful Save and Unsave actions.
+     * This prevents the previous account's saved places
+     * from appearing even for a single render.
+     */
+    const currentState: SavedPlacesState =
+        state.ownerKey === ownerKey
+            ? state
+            : {
+                  ownerKey,
+                  savedPlaces: [],
+                  isLoading: ownerKey !== null,
+                  error: null,
+              };
+
+    /**
+     * Request another server-backed collection load.
      */
     const refreshSavedPlaces = useCallback(() => {
         setRefreshVersion((previous) => previous + 1);
     }, []);
 
-    /**
-     * Load published saved restaurants for the authenticated,
-     * email-verified user.
-     */
     useEffect(() => {
         const controller = new AbortController();
 
-        if (!userId || !canSavePlaces) {
-            setSavedPlaces([]);
-            setIsLoading(false);
-            setError(null);
+        /**
+         * Clear the collection when the user signs out
+         * or loses access to Saved Places.
+         */
+        if (ownerKey === null) {
+            setState({
+                ownerKey: null,
+                savedPlaces: [],
+                isLoading: false,
+                error: null,
+            });
 
             return () => controller.abort();
         }
 
         async function loadSavedPlaces() {
-            setIsLoading(true);
-            setError(null);
-            setSavedPlaces([]);
+            /**
+             * Preserve previously loaded places when
+             * refreshing for the same account.
+             *
+             * For another account, start with empty data.
+             */
+            setState((previous) => ({
+                ownerKey,
+                savedPlaces:
+                    previous.ownerKey === ownerKey ? previous.savedPlaces : [],
+                isLoading: true,
+                error: null,
+            }));
 
             try {
                 const response = await fetch('/saved-places', {
@@ -99,6 +145,12 @@ export function SavedPlacesProvider({ children }: SavedPlacesProviderProps) {
 
                 const result = (await response.json()) as SavedPlacesResponse;
 
+                /**
+                 * Validate the shape of the API response.
+                 *
+                 * TypeScript types alone cannot guarantee
+                 * that incoming JSON is valid.
+                 */
                 if (
                     !Array.isArray(result.data) ||
                     !result.data.every(
@@ -112,55 +164,83 @@ export function SavedPlacesProvider({ children }: SavedPlacesProviderProps) {
                     throw new Error('The saved places response was invalid.');
                 }
 
-                if (!controller.signal.aborted) {
-                    setSavedPlaces(result.data);
+                if (controller.signal.aborted) {
+                    return;
                 }
+
+                /**
+                 * Replace the collection only after a
+                 * successful, validated server response.
+                 */
+                setState({
+                    ownerKey,
+                    savedPlaces: result.data,
+                    isLoading: false,
+                    error: null,
+                });
             } catch (caughtError) {
                 if (controller.signal.aborted) {
                     return;
                 }
 
-                setSavedPlaces([]);
-
-                setError(
-                    caughtError instanceof Error
-                        ? caughtError.message
-                        : 'An unexpected error occurred.',
-                );
-            } finally {
-                if (!controller.signal.aborted) {
-                    setIsLoading(false);
-                }
+                /**
+                 * Preserve confirmed data after a failed
+                 * refresh for the same account.
+                 */
+                setState((previous) => ({
+                    ownerKey,
+                    savedPlaces:
+                        previous.ownerKey === ownerKey
+                            ? previous.savedPlaces
+                            : [],
+                    isLoading: false,
+                    error:
+                        caughtError instanceof Error
+                            ? caughtError.message
+                            : 'An unexpected error occurred.',
+                }));
             }
         }
 
         void loadSavedPlaces();
 
+        /**
+         * Cancel outdated requests when:
+         * - The provider unmounts.
+         * - The authenticated user changes.
+         * - A new refresh is requested.
+         */
         return () => {
             controller.abort();
         };
-    }, [userId, canSavePlaces, refreshVersion]);
+    }, [ownerKey, refreshVersion]);
 
     /**
-     * Build a lookup collection for checking bookmark state.
+     * Build a fast lookup for restaurant bookmark IDs.
      */
     const savedIds = useMemo(
-        () => new Set(savedPlaces.map((place) => place.id)),
-        [savedPlaces],
+        () => new Set(currentState.savedPlaces.map((place) => place.id)),
+        [currentState.savedPlaces],
     );
 
     /**
-     * Share the saved collection and refresh action.
+     * Share the current account's saved collection.
      */
     const value = useMemo<SavedPlacesContextValue>(
         () => ({
-            savedPlaces,
+            savedPlaces: currentState.savedPlaces,
             savedIds,
-            isLoading,
-            error,
+            isLoading: currentState.isLoading,
+            error: currentState.error,
             refreshSavedPlaces,
         }),
-        [savedPlaces, savedIds, isLoading, error, refreshSavedPlaces],
+        [
+            currentState.savedPlaces,
+            currentState.isLoading,
+            currentState.error,
+            savedIds,
+            refreshSavedPlaces,
+        ],
     );
 
     return (
@@ -171,8 +251,8 @@ export function SavedPlacesProvider({ children }: SavedPlacesProviderProps) {
 }
 
 /**
- * Access Saved Places state from components inside
- * SavedPlacesProvider.
+ * Read Saved Places state from components rendered
+ * inside SavedPlacesProvider.
  */
 export function useSavedPlaces(): SavedPlacesContextValue {
     const context = useContext(SavedPlacesContext);
