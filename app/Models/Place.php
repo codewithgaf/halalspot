@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 #[Fillable([
     'name',
@@ -30,5 +31,20 @@ class Place extends Model
             'longitude' => 'decimal:7',
             'published_at' => 'immutable_datetime',
         ];
+    }
+
+    /**
+     * Users who saved this place.
+     *
+     * @return BelongsToMany<User, $this>
+     */
+    public function savedByUsers(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            User::class,
+            'saved_places',
+            'place_id',
+            'user_id'
+        )->withTimestamps();
     }
 }
