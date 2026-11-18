@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { Heart, Bookmark, LockKeyhole, X } from 'lucide-react';
+import { Bookmark, LockKeyhole, X } from 'lucide-react';
 import { useEffect, useId, useRef, useState } from 'react';
 
 import { home, login } from '@/routes';
@@ -85,7 +85,7 @@ export default function FloatingSavedPlaces() {
                     <div className="mt-4 flex flex-col items-center rounded-xl border border-dashed border-border bg-muted/30 px-4 py-6 text-center">
                         <span className="flex size-12 items-center justify-center rounded-full bg-brand/10 text-brand">
                             {isAuthenticated ? (
-                                <Heart
+                                <Bookmark
                                     aria-hidden="true"
                                     className="size-6"
                                 />
@@ -150,7 +150,7 @@ export default function FloatingSavedPlaces() {
                 onClick={togglePanel}
                 className="flex size-14 items-center justify-center rounded-2xl bg-brand text-white shadow-lg transition-transform hover:-translate-y-0.5 hover:bg-brand-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand motion-reduce:transform-none motion-reduce:transition-none"
             >
-                <Heart aria-hidden="true" className="size-6" />
+                <Bookmark aria-hidden="true" className="size-6" />
             </button>
         </div>
     );
