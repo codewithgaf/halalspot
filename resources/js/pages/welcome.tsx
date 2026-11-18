@@ -141,6 +141,10 @@ function WelcomeContent({ places }: WelcomeProps) {
                                     key={place.id}
                                     place={place}
                                     onSaveRequest={handleBookmarkClick}
+                                    isPending={
+                                        pendingAction?.placeId === place.id
+                                    }
+                                    isBookmarkDisabled={pendingAction !== null}
                                 />
                             ))}
                         </div>
