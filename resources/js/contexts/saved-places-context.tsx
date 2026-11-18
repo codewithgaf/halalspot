@@ -1,6 +1,7 @@
 import { usePage } from '@inertiajs/react';
 import {
     createContext,
+    useCallback,
     useContext,
     useEffect,
     useMemo,
@@ -18,6 +19,7 @@ type SavedPlacesContextValue = {
     savedIds: Set<string>;
     isLoading: boolean;
     error: string | null;
+    refreshSavedPlaces: () => void;
 };
 
 const SavedPlacesContext = createContext<SavedPlacesContextValue | null>(null);
@@ -35,7 +37,21 @@ export function SavedPlacesProvider({ children }: SavedPlacesProviderProps) {
     const [savedPlaces, setSavedPlaces] = useState<SavedPlace[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [refreshVersion, setRefreshVersion] = useState(0);
 
+    /**
+     * Request a fresh collection from the Laravel backend.
+     *
+     * This will be called after successful Save and Unsave actions.
+     */
+    const refreshSavedPlaces = useCallback(() => {
+        setRefreshVersion((previous) => previous + 1);
+    }, []);
+
+    /**
+     * Load published saved restaurants for the authenticated,
+     * email-verified user.
+     */
     useEffect(() => {
         const controller = new AbortController();
 
@@ -120,22 +136,31 @@ export function SavedPlacesProvider({ children }: SavedPlacesProviderProps) {
 
         void loadSavedPlaces();
 
-        return () => controller.abort();
-    }, [userId, canSavePlaces]);
+        return () => {
+            controller.abort();
+        };
+    }, [userId, canSavePlaces, refreshVersion]);
 
+    /**
+     * Build a lookup collection for checking bookmark state.
+     */
     const savedIds = useMemo(
         () => new Set(savedPlaces.map((place) => place.id)),
         [savedPlaces],
     );
 
-    const value = useMemo(
+    /**
+     * Share the saved collection and refresh action.
+     */
+    const value = useMemo<SavedPlacesContextValue>(
         () => ({
             savedPlaces,
             savedIds,
             isLoading,
             error,
+            refreshSavedPlaces,
         }),
-        [savedPlaces, savedIds, isLoading, error],
+        [savedPlaces, savedIds, isLoading, error, refreshSavedPlaces],
     );
 
     return (
@@ -145,6 +170,10 @@ export function SavedPlacesProvider({ children }: SavedPlacesProviderProps) {
     );
 }
 
+/**
+ * Access Saved Places state from components inside
+ * SavedPlacesProvider.
+ */
 export function useSavedPlaces(): SavedPlacesContextValue {
     const context = useContext(SavedPlacesContext);
 
