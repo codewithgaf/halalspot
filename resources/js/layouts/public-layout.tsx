@@ -1,4 +1,6 @@
 import type { ReactNode } from 'react';
+
+import FloatingSavedPlaces from '@/components/halalspot/floating-saved-places';
 import SiteHeader from '@/components/halalspot/site-header';
 
 type PublicLayoutProps = {
@@ -13,6 +15,8 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
             <main id="main-content" className="flex-1">
                 {children}
             </main>
+
+            <FloatingSavedPlaces />
         </div>
     );
 }
