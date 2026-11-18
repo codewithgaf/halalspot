@@ -120,7 +120,7 @@ export default function LocationSelector() {
     const locationLabel = location
         ? `${location.city}, within ${location.radius} km`
         : 'Set location';
-
+    const compactLocationLabel = location?.city ?? 'Set location';
     return (
         <div
             ref={containerRef}
@@ -139,20 +139,20 @@ export default function LocationSelector() {
                 aria-expanded={isOpen}
                 aria-controls={isOpen ? panelId : undefined}
                 onClick={togglePanel}
-                className="flex h-14 items-center justify-center gap-2 rounded-2xl border border-border bg-background px-3 text-sm font-medium text-foreground shadow-sm transition-colors hover:border-brand/40 hover:bg-brand/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand motion-reduce:transition-none sm:min-w-44 sm:px-4"
+                className="flex h-10 max-w-29.5 items-center justify-center gap-1 rounded-full border border-border bg-background px-2 text-xs font-medium text-foreground shadow-sm transition-colors hover:border-brand/40 hover:bg-brand/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:max-w-[180px] sm:gap-2 sm:px-3 lg:h-10 lg:max-w-[160px]"
             >
                 <MapPin
                     aria-hidden="true"
-                    className="size-5 shrink-0 text-brand"
+                    className="size-4 shrink-0 text-brand"
                 />
-                <span className="hidden max-w-40 truncate sm:inline">
-                    {location
-                        ? `${location.city} · ${location.radius} km`
-                        : 'Set location'}
-                </span>
+
+                <span className="min-w-0 truncate">{compactLocationLabel}</span>
+
                 <ChevronDown
                     aria-hidden="true"
-                    className={`hidden size-4 shrink-0 text-muted-foreground transition-transform motion-reduce:transition-none sm:block ${isOpen ? 'rotate-180' : ''}`}
+                    className={`hidden size-3.5 shrink-0 text-muted-foreground transition-transform motion-reduce:transition-none sm:block ${
+                        isOpen ? 'rotate-180' : ''
+                    }`}
                 />
             </button>
 
@@ -161,14 +161,10 @@ export default function LocationSelector() {
                     id={panelId}
                     role="region"
                     aria-label="Location options"
-                    className="absolute top-full right-0 z-20 mt-2 max-h-80 w-[min(20rem,calc(100vw-2rem))] overflow-y-auto rounded-2xl border border-border bg-background p-4 shadow-lg"
+                    className="absolute top-full left-1/2 z-50 mt-2 max-h-[min(360px,calc(100dvh-100px))] w-[min(300px,calc(100vw-32px))] -translate-x-1/2 overflow-y-auto overscroll-contain rounded-xl border border-border bg-background p-3 shadow-xl lg:left-0 lg:w-80 lg:translate-x-0"
                 >
-                    <p className="font-medium text-foreground">
-                        Find food nearby
-                    </p>
-
                     <form
-                        className="mt-4 space-y-4"
+                        className="mt-2 space-y-4"
                         onSubmit={(event) => {
                             event.preventDefault();
                             if ((!city.trim() && !coordinates) || locating)

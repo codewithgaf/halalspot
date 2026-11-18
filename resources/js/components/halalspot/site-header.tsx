@@ -1,6 +1,9 @@
 import { Link, usePage } from '@inertiajs/react';
-import { Bookmark, MapPin, Menu, Plus } from 'lucide-react';
+import { MapPin, Menu, Plus } from 'lucide-react';
+
+import LocationSelector from '@/components/halalspot/location-selector';
 import PageContainer from '@/components/halalspot/page-container';
+
 import {
     Sheet,
     SheetClose,
@@ -9,6 +12,7 @@ import {
     SheetTitle,
     SheetTrigger,
 } from '@/components/ui/sheet';
+
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import { dashboard, home, login } from '@/routes';
 
@@ -21,6 +25,9 @@ export default function SiteHeader() {
     const isDiscoverPage = isCurrentUrl(home());
     const isAboutPage = isCurrentUrl('/about');
 
+    const authHref = isAuthenticated ? dashboard() : login();
+    const authLabel = isAuthenticated ? 'Dashboard' : 'Sign in';
+
     const desktopLinkClass =
         'inline-flex h-full items-center border-b-2 px-1 text-sm font-medium transition-colors hover:text-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand';
 
@@ -28,33 +35,47 @@ export default function SiteHeader() {
         'flex min-h-11 items-center rounded-lg border-l-2 px-3 py-3 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand';
 
     const activeDesktopClass = 'border-brand font-semibold text-brand';
+
     const inactiveDesktopClass = 'border-transparent text-muted-foreground';
 
     const activeMobileClass =
         'border-brand bg-brand/10 font-semibold text-brand';
+
     const inactiveMobileClass =
         'border-transparent text-foreground hover:bg-accent';
 
     return (
-        <header className="border-b border-border bg-background">
-            <PageContainer className="flex h-18 items-center justify-between gap-4">
-                {/* HalalSpot branding */}
-                <Link
-                    href={home()}
-                    aria-label="HalalSpot homepage"
-                    className="inline-flex shrink-0 items-center gap-2 text-xl font-bold tracking-tight text-brand"
-                >
-                    <span className="flex size-9 items-center justify-center rounded-xl bg-brand/10">
-                        <MapPin className="size-5" aria-hidden="true" />
-                    </span>
+        <header className="sticky top-0 z-50 border-b border-border bg-background">
+            <PageContainer className="grid h-[72px] grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 lg:gap-3">
+                {/* Logo and location share a single desktop group.
+                    On mobile, display: contents lets the grid place
+                    them in separate columns. */}
+                <div className="contents lg:flex lg:min-w-0 lg:items-center lg:gap-3">
+                    <Link
+                        href={home()}
+                        aria-label="HalalSpot homepage"
+                        className="inline-flex min-w-0 items-center gap-1 text-xs font-bold tracking-tight whitespace-nowrap text-brand sm:gap-1.5 sm:text-lg lg:shrink-0 lg:gap-2 lg:text-xl"
+                    >
+                        <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-brand/10 sm:size-8 lg:size-9">
+                            <MapPin
+                                className="size-4 lg:size-5"
+                                aria-hidden="true"
+                            />
+                        </span>
 
-                    <span>Halalspot</span>
-                </Link>
+                        <span>HalalSpot</span>
+                    </Link>
 
-                {/* Desktop primary navigation */}
+                    {/* Single instance preserves state at breakpoints */}
+                    <div className="min-w-0 justify-self-center lg:shrink-0">
+                        <LocationSelector />
+                    </div>
+                </div>
+
+                {/* Centered desktop navigation */}
                 <nav
                     aria-label="Primary navigation"
-                    className="hidden h-full items-center gap-6 lg:flex"
+                    className="hidden h-full items-center justify-center gap-6 lg:flex"
                 >
                     <Link
                         href={home()}
@@ -81,44 +102,34 @@ export default function SiteHeader() {
                     </Link>
                 </nav>
 
-                {/* Desktop secondary navigation */}
-                <div className="hidden items-center gap-2 lg:flex">
-                    <button
-                        type="button"
-                        disabled
-                        title="Saved places coming in a future milestone"
-                        className="inline-flex min-h-11 items-center gap-2 rounded-lg px-3 text-sm font-medium text-muted-foreground opacity-60"
-                    >
-                        <Bookmark className="size-4" aria-hidden="true" />
-                        Saved
-                    </button>
-
+                {/* Desktop actions */}
+                <div className="hidden min-w-0 items-center justify-end gap-2 lg:flex">
                     <button
                         type="button"
                         disabled
                         title="Restaurant suggestions coming in a future milestone"
-                        className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border px-4 text-sm font-semibold text-brand opacity-60"
+                        className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-brand opacity-60"
                     >
                         <Plus className="size-4" aria-hidden="true" />
                         Suggest a place
                     </button>
 
                     <Link
-                        href={isAuthenticated ? dashboard() : login()}
-                        className="inline-flex min-h-11 items-center justify-center rounded-lg bg-brand px-5 text-sm font-semibold text-white transition-colors hover:bg-brand-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+                        href={authHref}
+                        className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-lg bg-brand px-4 text-sm font-semibold text-white transition-colors hover:bg-brand-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
                     >
-                        {isAuthenticated ? 'Dashboard' : 'Sign in'}
+                        {authLabel}
                     </Link>
                 </div>
 
-                {/* Mobile and tablet navigation */}
-                <div className="lg:hidden">
+                {/* Mobile and tablet menu */}
+                <div className="flex justify-end lg:hidden">
                     <Sheet>
                         <SheetTrigger asChild>
                             <button
                                 type="button"
                                 aria-label="Open navigation menu"
-                                className="inline-flex size-11 items-center justify-center rounded-lg border border-border focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+                                className="inline-flex size-11 shrink-0 items-center justify-center rounded-lg border border-border focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
                             >
                                 <Menu className="size-5" aria-hidden="true" />
                             </button>
@@ -173,18 +184,7 @@ export default function SiteHeader() {
                                 <button
                                     type="button"
                                     disabled
-                                    className="flex min-h-11 items-center gap-2 rounded-lg px-3 text-left text-sm text-muted-foreground opacity-60"
-                                >
-                                    <Bookmark
-                                        className="size-4"
-                                        aria-hidden="true"
-                                    />
-                                    Saved (coming soon)
-                                </button>
-
-                                <button
-                                    type="button"
-                                    disabled
+                                    title="Restaurant suggestions coming in a future milestone"
                                     className="flex min-h-11 items-center gap-2 rounded-lg px-3 text-left text-sm text-muted-foreground opacity-60"
                                 >
                                     <Plus
@@ -196,16 +196,10 @@ export default function SiteHeader() {
 
                                 <SheetClose asChild>
                                     <Link
-                                        href={
-                                            isAuthenticated
-                                                ? dashboard()
-                                                : login()
-                                        }
+                                        href={authHref}
                                         className="flex min-h-11 items-center justify-center rounded-lg bg-brand px-3 py-3 text-sm font-semibold text-white transition-colors hover:bg-brand-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
                                     >
-                                        {isAuthenticated
-                                            ? 'Dashboard'
-                                            : 'Sign in'}
+                                        {authLabel}
                                     </Link>
                                 </SheetClose>
                             </nav>

@@ -54,38 +54,60 @@ for (const width of [320, 390, 768, 1280]) {
         await page.goto('/');
 
         const search = page.getByRole('search');
-        const location = page.getByRole('button', { name: 'Set location' });
+        const location = page.getByRole('button', {
+            name: 'Set location',
+            exact: true,
+        });
+
+        await expect(search).toBeVisible();
+        await expect(location).toBeVisible();
+
         const searchBounds = await search.boundingBox();
         const locationBounds = await location.boundingBox();
+
         expect(searchBounds).not.toBeNull();
         expect(locationBounds).not.toBeNull();
+
         expect(searchBounds!.width).toBeGreaterThan(150);
-        expect(locationBounds!.height).toBe(searchBounds!.height);
-        expect(locationBounds!.y).toBeCloseTo(searchBounds!.y, 1);
-        expect(locationBounds!.x).toBeGreaterThanOrEqual(
-            searchBounds!.x + searchBounds!.width,
-        );
-        expect(searchBounds!.x).toBeGreaterThanOrEqual(0);
-        expect(locationBounds!.x + locationBounds!.width).toBeLessThanOrEqual(
-            width,
-        );
+
+        // Both controls must remain inside the viewport.
+        for (const bounds of [searchBounds!, locationBounds!]) {
+            expect(bounds.x).toBeGreaterThanOrEqual(0);
+            expect(bounds.x + bounds.width).toBeLessThanOrEqual(width);
+        }
+
+        // Location is compact and belongs to the header.
+        expect(locationBounds!.height).toBeLessThanOrEqual(44);
+        expect(locationBounds!.y).toBeLessThan(searchBounds!.y);
 
         await location.click();
-        const panel = page.getByRole('region', { name: 'Location options' });
+
+        const panel = page.getByRole('region', {
+            name: 'Location options',
+        });
+
         await expect(panel).toBeVisible();
+
         const panelBounds = await panel.boundingBox();
+        expect(panelBounds).not.toBeNull();
         expect(panelBounds!.x).toBeGreaterThanOrEqual(0);
         expect(panelBounds!.x + panelBounds!.width).toBeLessThanOrEqual(width);
+
         expect(
             await page.evaluate(() => document.documentElement.scrollWidth),
         ).toBeLessThanOrEqual(width);
 
         await page.keyboard.press('Escape');
+
         await expect(panel).toBeHidden();
         await expect(location).toBeFocused();
 
         await location.click();
-        await page.getByRole('heading', { level: 1 }).click();
+
+        // Click near the bottom-right of the viewport,
+        // outside the location popup.
+        await page.mouse.click(width - 10, 850);
+
         await expect(panel).toBeHidden();
     });
 }
