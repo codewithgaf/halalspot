@@ -61,7 +61,7 @@ class ListSavedPlacesTest extends TestCase
             ->getJson('/saved-places')
             ->assertOk()
             ->assertJsonCount(1, 'data')
-            ->assertJsonPath('data.0.id', $ownPlace->id);
+            ->assertJsonPath('data.0.id', (string) $ownPlace->id);
     }
 
     public function test_draft_and_archived_places_are_excluded(): void
@@ -82,7 +82,7 @@ class ListSavedPlacesTest extends TestCase
             ->getJson('/saved-places')
             ->assertOk()
             ->assertJsonCount(1, 'data')
-            ->assertJsonPath('data.0.id', $published->id);
+            ->assertJsonPath('data.0.id', (string) $published->id);
     }
 
     public function test_empty_saved_collection_returns_empty_array(): void
@@ -107,6 +107,7 @@ class ListSavedPlacesTest extends TestCase
         $this->actingAs($user)
             ->getJson('/saved-places')
             ->assertOk()
+            ->assertJsonCount(1, 'data')
             ->assertJsonStructure([
                 'data' => [
                     '*' => [
@@ -117,10 +118,10 @@ class ListSavedPlacesTest extends TestCase
                     ],
                 ],
             ])
-            ->assertJsonPath(
-                'data.0.slug',
-                'restaurant-detail-link'
-            );
+            ->assertJsonPath('data.0.id', (string) $place->id)
+            ->assertJsonPath('data.0.name', 'Test Restaurant')
+            ->assertJsonPath('data.0.slug', 'restaurant-detail-link')
+            ->assertJsonPath('data.0.city', 'General Santos');
     }
 
     public function test_saved_places_are_ordered_newest_first(): void
@@ -144,7 +145,7 @@ class ListSavedPlacesTest extends TestCase
             ->getJson('/saved-places')
             ->assertOk()
             ->assertJsonCount(2, 'data')
-            ->assertJsonPath('data.0.id', $newerPlace->id)
-            ->assertJsonPath('data.1.id', $olderPlace->id);
+            ->assertJsonPath('data.0.id', (string) $newerPlace->id)
+            ->assertJsonPath('data.1.id', (string) $olderPlace->id);
     }
 }
