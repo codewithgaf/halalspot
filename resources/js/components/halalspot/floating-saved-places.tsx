@@ -1,9 +1,9 @@
 import { Link, usePage } from '@inertiajs/react';
 import { Bookmark, RefreshCw, X } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
 
 import SavedPlacesList from '@/components/halalspot/saved-places/saved-places-list';
 import { useSavedPlaces } from '@/contexts/saved-places-context';
+import { useFloatingPanel } from '@/hooks/halalspot/use-floating-panel';
 import { login } from '@/routes';
 
 export default function FloatingSavedPlaces() {
@@ -12,78 +12,14 @@ export default function FloatingSavedPlaces() {
     const { savedPlaces, isLoading, error, refreshSavedPlaces } =
         useSavedPlaces();
 
-    const [isOpen, setIsOpen] = useState(false);
-
-    const triggerRef = useRef<HTMLButtonElement>(null);
-    const closeRef = useRef<HTMLButtonElement>(null);
-    const panelRef = useRef<HTMLElement>(null);
+    const { isOpen, togglePanel, closePanel, triggerRef, closeRef, panelRef } =
+        useFloatingPanel();
 
     const isGuest = auth.user === null;
     const isUnverified = !isGuest && !auth.canSavePlaces;
 
     const savedCount = savedPlaces.length;
     const hasSavedPlaces = savedCount > 0;
-
-    /**
-     * Close the panel.
-     *
-     * Restore focus when users dismiss the panel,
-     * but not when navigating to another page.
-     */
-    function closePanel(restoreFocus = true) {
-        setIsOpen(false);
-
-        if (restoreFocus) {
-            triggerRef.current?.focus();
-        }
-    }
-
-    /**
-     * Handle Escape and clicks outside the panel.
-     *
-     * The panel is non-modal, meaning other page
-     * content remains interactive.
-     */
-    useEffect(() => {
-        if (!isOpen) {
-            return;
-        }
-
-        closeRef.current?.focus();
-
-        function handleKeyDown(event: KeyboardEvent) {
-            if (event.key === 'Escape') {
-                event.preventDefault();
-                setIsOpen(false);
-                triggerRef.current?.focus();
-            }
-        }
-
-        function handlePointerDown(event: PointerEvent) {
-            const target = event.target;
-
-            if (!(target instanceof Node)) {
-                return;
-            }
-
-            if (
-                panelRef.current?.contains(target) ||
-                triggerRef.current?.contains(target)
-            ) {
-                return;
-            }
-
-            setIsOpen(false);
-        }
-
-        document.addEventListener('keydown', handleKeyDown);
-        document.addEventListener('pointerdown', handlePointerDown);
-
-        return () => {
-            document.removeEventListener('keydown', handleKeyDown);
-            document.removeEventListener('pointerdown', handlePointerDown);
-        };
-    }, [isOpen]);
 
     return (
         <div className="pointer-events-none fixed inset-0 z-50">
@@ -96,9 +32,7 @@ export default function FloatingSavedPlaces() {
                 aria-controls={
                     isOpen ? 'floating-saved-places-panel' : undefined
                 }
-                onClick={() => {
-                    setIsOpen((previous) => !previous);
-                }}
+                onClick={togglePanel}
                 className="pointer-events-auto absolute right-4 bottom-[max(1rem,env(safe-area-inset-bottom))] inline-flex size-14 items-center justify-center rounded-2xl bg-brand text-white shadow-lg transition-colors hover:bg-brand-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand motion-reduce:transition-none sm:right-6 sm:bottom-6"
             >
                 <Bookmark className="size-6" aria-hidden="true" />
@@ -122,7 +56,7 @@ export default function FloatingSavedPlaces() {
                     className="pointer-events-auto absolute right-4 bottom-[max(5rem,calc(env(safe-area-inset-bottom)+4rem))] flex max-h-[70dvh] w-[calc(100vw-2rem)] max-w-sm flex-col overflow-hidden rounded-2xl border border-border bg-background text-foreground shadow-2xl sm:right-6 sm:bottom-24"
                 >
                     {/* Header */}
-                    <div className="flex shrink-0 items-start justify-between gap-3 border border-b p-4">
+                    <div className="flex shrink-0 items-start justify-between gap-3 border-b border-border p-4">
                         <div>
                             <h2 className="text-base font-bold text-foreground">
                                 Saved places
@@ -144,9 +78,10 @@ export default function FloatingSavedPlaces() {
                         </button>
                     </div>
 
-                    {/* Scrollable content */}
+                    {/* Scrollable panel content */}
                     <div className="min-h-0 overflow-y-auto p-4">
                         {isGuest ? (
+                            /* Guest state */
                             <div className="space-y-4">
                                 <div className="rounded-xl border border-dashed border-border bg-muted/30 px-4 py-6 text-center">
                                     <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-brand/10 text-brand">
@@ -183,6 +118,7 @@ export default function FloatingSavedPlaces() {
                                 </Link>
                             </div>
                         ) : isUnverified ? (
+                            /* Email verification required */
                             <div className="space-y-4 text-center">
                                 <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-brand/10 text-brand">
                                     <Bookmark
@@ -211,6 +147,7 @@ export default function FloatingSavedPlaces() {
                                 </Link>
                             </div>
                         ) : isLoading && !hasSavedPlaces ? (
+                            /* Initial loading or refreshing an empty collection */
                             <div
                                 role="status"
                                 className="flex flex-col items-center justify-center gap-3 py-10 text-center"
@@ -225,6 +162,7 @@ export default function FloatingSavedPlaces() {
                                 </p>
                             </div>
                         ) : (
+                            /* Collection, error, and empty states */
                             <div className="space-y-4">
                                 {/* Collection count and refresh */}
                                 <div className="flex items-center justify-between gap-3">
@@ -306,6 +244,7 @@ export default function FloatingSavedPlaces() {
 
                                 {!hasSavedPlaces ? (
                                     !error && (
+                                        /* Empty collection */
                                         <div className="space-y-4 text-center">
                                             <div className="rounded-xl border border-dashed border-border bg-muted/30 px-4 py-7">
                                                 <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-brand/10 text-brand">
@@ -336,6 +275,7 @@ export default function FloatingSavedPlaces() {
                                         </div>
                                     )
                                 ) : (
+                                    /* Saved restaurant list */
                                     <SavedPlacesList
                                         places={savedPlaces}
                                         onNavigate={() => closePanel(false)}
