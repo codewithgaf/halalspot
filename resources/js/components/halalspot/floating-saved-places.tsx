@@ -1,7 +1,8 @@
 import { Link, usePage } from '@inertiajs/react';
-import { Bookmark, MapPin, RefreshCw, UtensilsCrossed, X } from 'lucide-react';
+import { Bookmark, RefreshCw, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
+import SavedPlacesList from '@/components/halalspot/saved-places/saved-places-list';
 import { useSavedPlaces } from '@/contexts/saved-places-context';
 import { login } from '@/routes';
 
@@ -21,20 +22,27 @@ export default function FloatingSavedPlaces() {
     const isUnverified = !isGuest && !auth.canSavePlaces;
 
     const savedCount = savedPlaces.length;
+    const hasSavedPlaces = savedCount > 0;
 
     /**
-     * Close the panel and restore focus to its trigger.
+     * Close the panel.
+     *
+     * Restore focus when users dismiss the panel,
+     * but not when navigating to another page.
      */
-    function closePanel() {
+    function closePanel(restoreFocus = true) {
         setIsOpen(false);
-        triggerRef.current?.focus();
+
+        if (restoreFocus) {
+            triggerRef.current?.focus();
+        }
     }
 
     /**
-     * Manage keyboard and outside-click behavior.
+     * Handle Escape and clicks outside the panel.
      *
-     * This is a non-modal panel, so users can still
-     * interact with the rest of the page.
+     * The panel is non-modal, meaning other page
+     * content remains interactive.
      */
     useEffect(() => {
         if (!isOpen) {
@@ -79,21 +87,23 @@ export default function FloatingSavedPlaces() {
 
     return (
         <div className="pointer-events-none fixed inset-0 z-50">
-            {/* Floating bookmark trigger */}
+            {/* Floating bookmark button */}
             <button
                 ref={triggerRef}
                 type="button"
                 aria-label={isOpen ? 'Close saved places' : 'Open saved places'}
                 aria-expanded={isOpen}
-                aria-controls="floating-saved-places-panel"
+                aria-controls={
+                    isOpen ? 'floating-saved-places-panel' : undefined
+                }
                 onClick={() => {
                     setIsOpen((previous) => !previous);
                 }}
-                className="pointer-events-auto absolute right-4 bottom-4 inline-flex size-14 items-center justify-center rounded-2xl bg-brand text-white shadow-lg transition-colors hover:bg-brand-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand motion-reduce:transition-none sm:right-6 sm:bottom-6"
+                className="pointer-events-auto absolute right-4 bottom-[max(1rem,env(safe-area-inset-bottom))] inline-flex size-14 items-center justify-center rounded-2xl bg-brand text-white shadow-lg transition-colors hover:bg-brand-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand motion-reduce:transition-none sm:right-6 sm:bottom-6"
             >
                 <Bookmark className="size-6" aria-hidden="true" />
 
-                {!isGuest && savedCount > 0 && (
+                {!isGuest && !isUnverified && hasSavedPlaces && (
                     <span
                         aria-hidden="true"
                         className="absolute -top-2 -right-2 flex min-w-6 items-center justify-center rounded-full border-2 border-background bg-foreground px-1 text-xs font-semibold text-background"
@@ -103,16 +113,16 @@ export default function FloatingSavedPlaces() {
                 )}
             </button>
 
-            {/* Saved Places collection panel */}
+            {/* Saved Places panel */}
             {isOpen && (
                 <aside
                     ref={panelRef}
                     id="floating-saved-places-panel"
                     aria-label="Saved places"
-                    className="pointer-events-auto absolute right-4 bottom-20 flex max-h-[70dvh] w-[calc(100vw-2rem)] max-w-sm flex-col overflow-hidden rounded-2xl border border-border bg-background text-foreground shadow-2xl sm:right-6 sm:bottom-24"
+                    className="pointer-events-auto absolute right-4 bottom-[max(5rem,calc(env(safe-area-inset-bottom)+4rem))] flex max-h-[70dvh] w-[calc(100vw-2rem)] max-w-sm flex-col overflow-hidden rounded-2xl border border-border bg-background text-foreground shadow-2xl sm:right-6 sm:bottom-24"
                 >
-                    {/* Panel header */}
-                    <div className="flex shrink-0 items-start justify-between gap-3 border-b border-border p-4">
+                    {/* Header */}
+                    <div className="flex shrink-0 items-start justify-between gap-3 border border-b p-4">
                         <div>
                             <h2 className="text-base font-bold text-foreground">
                                 Saved places
@@ -126,16 +136,16 @@ export default function FloatingSavedPlaces() {
                         <button
                             ref={closeRef}
                             type="button"
-                            onClick={closePanel}
                             aria-label="Close saved places panel"
+                            onClick={() => closePanel()}
                             className="inline-flex size-11 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
                         >
                             <X className="size-5" aria-hidden="true" />
                         </button>
                     </div>
 
+                    {/* Scrollable content */}
                     <div className="min-h-0 overflow-y-auto p-4">
-                        {/* Guest state */}
                         {isGuest ? (
                             <div className="space-y-4">
                                 <div className="rounded-xl border border-dashed border-border bg-muted/30 px-4 py-6 text-center">
@@ -158,20 +168,21 @@ export default function FloatingSavedPlaces() {
 
                                 <Link
                                     href={login()}
-                                    className="inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-brand px-4 text-sm font-semibold text-white transition-colors hover:bg-brand-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+                                    onClick={() => closePanel(false)}
+                                    className="inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-brand px-4 text-sm font-semibold text-white transition-colors hover:bg-brand-dark"
                                 >
                                     Sign in
                                 </Link>
 
                                 <Link
                                     href="/register"
-                                    className="inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-border px-4 text-sm font-semibold text-brand transition-colors hover:bg-brand/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+                                    onClick={() => closePanel(false)}
+                                    className="inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-border px-4 text-sm font-semibold text-brand hover:bg-brand/5"
                                 >
                                     Create free account
                                 </Link>
                             </div>
                         ) : isUnverified ? (
-                            /* Email verification required */
                             <div className="space-y-4 text-center">
                                 <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-brand/10 text-brand">
                                     <Bookmark
@@ -193,13 +204,13 @@ export default function FloatingSavedPlaces() {
 
                                 <Link
                                     href="/email/verify"
+                                    onClick={() => closePanel(false)}
                                     className="inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-brand px-4 text-sm font-semibold text-white hover:bg-brand-dark"
                                 >
                                     Verify email
                                 </Link>
                             </div>
-                        ) : isLoading ? (
-                            /* Loading state */
+                        ) : isLoading && !hasSavedPlaces ? (
                             <div
                                 role="status"
                                 className="flex flex-col items-center justify-center gap-3 py-10 text-center"
@@ -213,81 +224,42 @@ export default function FloatingSavedPlaces() {
                                     Loading saved places...
                                 </p>
                             </div>
-                        ) : error ? (
-                            /* Failed request */
-                            <div
-                                role="alert"
-                                className="space-y-4 py-6 text-center"
-                            >
-                                <h3 className="text-sm font-semibold">
-                                    Unable to load saved places
-                                </h3>
-
-                                <p className="text-xs leading-5 text-muted-foreground">
-                                    {error}
-                                </p>
-
-                                <button
-                                    type="button"
-                                    onClick={refreshSavedPlaces}
-                                    className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-brand px-4 text-sm font-semibold text-white hover:bg-brand-dark"
-                                >
-                                    <RefreshCw
-                                        className="size-4"
-                                        aria-hidden="true"
-                                    />
-                                    Try again
-                                </button>
-                            </div>
-                        ) : savedCount === 0 ? (
-                            /* Empty collection */
-                            <div className="space-y-4 text-center">
-                                <div className="rounded-xl border border-dashed border-border bg-muted/30 px-4 py-7">
-                                    <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-brand/10 text-brand">
-                                        <Bookmark
-                                            className="size-6"
-                                            aria-hidden="true"
-                                        />
-                                    </div>
-
-                                    <h3 className="mt-4 text-sm font-semibold">
-                                        No saved places yet
-                                    </h3>
-
-                                    <p className="mt-2 text-xs leading-5 text-muted-foreground">
-                                        Tap the bookmark icon on a restaurant to
-                                        add it to your collection.
-                                    </p>
-                                </div>
-
-                                <button
-                                    type="button"
-                                    onClick={closePanel}
-                                    className="inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-brand px-4 text-sm font-semibold text-white hover:bg-brand-dark"
-                                >
-                                    Explore restaurants
-                                </button>
-                            </div>
                         ) : (
-                            /* Real saved restaurant collection */
-                            <div className="space-y-3">
+                            <div className="space-y-4">
+                                {/* Collection count and refresh */}
                                 <div className="flex items-center justify-between gap-3">
-                                    <p
-                                        className="text-xs font-medium text-muted-foreground"
-                                        aria-live="polite"
-                                    >
-                                        {savedCount}{' '}
-                                        {savedCount === 1
-                                            ? 'saved restaurant'
-                                            : 'saved restaurants'}
-                                    </p>
+                                    <div className="min-w-0">
+                                        <p
+                                            className="text-xs font-medium text-muted-foreground"
+                                            aria-live="polite"
+                                        >
+                                            {savedCount}{' '}
+                                            {savedCount === 1
+                                                ? 'saved restaurant'
+                                                : 'saved restaurants'}
+                                        </p>
+
+                                        {isLoading && (
+                                            <p
+                                                role="status"
+                                                className="mt-1 flex items-center gap-2 text-xs text-brand"
+                                            >
+                                                <RefreshCw
+                                                    className="size-3.5 animate-spin motion-reduce:animate-none"
+                                                    aria-hidden="true"
+                                                />
+                                                Refreshing...
+                                            </p>
+                                        )}
+                                    </div>
 
                                     <button
                                         type="button"
                                         onClick={refreshSavedPlaces}
+                                        disabled={isLoading}
                                         aria-label="Refresh saved places"
                                         title="Refresh saved places"
-                                        className="inline-flex size-11 items-center justify-center rounded-lg text-brand hover:bg-brand/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+                                        className="inline-flex size-11 shrink-0 items-center justify-center rounded-lg text-brand hover:bg-brand/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:cursor-not-allowed disabled:opacity-50"
                                     >
                                         <RefreshCw
                                             className="size-4"
@@ -296,48 +268,79 @@ export default function FloatingSavedPlaces() {
                                     </button>
                                 </div>
 
-                                <ul className="space-y-2">
-                                    {savedPlaces.map((place) => (
-                                        <li key={place.id}>
-                                            <Link
-                                                href={`/restaurants/${encodeURIComponent(place.slug)}`}
-                                                onClick={() => {
-                                                    setIsOpen(false);
-                                                }}
-                                                className="flex min-h-16 items-center gap-3 rounded-xl border border-border p-3 transition-colors hover:border-brand/30 hover:bg-brand/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
-                                            >
-                                                <div className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-brand/10 text-brand">
-                                                    <UtensilsCrossed
-                                                        className="size-5"
+                                {/* Error with retained collection */}
+                                {error && (
+                                    <div
+                                        role="alert"
+                                        className="space-y-3 rounded-xl border border-destructive/30 bg-destructive/10 p-3"
+                                    >
+                                        <p className="text-sm font-semibold text-destructive">
+                                            Unable to refresh saved places
+                                        </p>
+
+                                        <p className="text-xs leading-5 text-destructive">
+                                            {error}
+                                        </p>
+
+                                        {hasSavedPlaces && (
+                                            <p className="text-xs text-muted-foreground">
+                                                Showing your last successfully
+                                                loaded collection.
+                                            </p>
+                                        )}
+
+                                        <button
+                                            type="button"
+                                            disabled={isLoading}
+                                            onClick={refreshSavedPlaces}
+                                            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-brand px-4 text-sm font-semibold text-white hover:bg-brand-dark disabled:opacity-50"
+                                        >
+                                            <RefreshCw
+                                                className="size-4"
+                                                aria-hidden="true"
+                                            />
+                                            Try again
+                                        </button>
+                                    </div>
+                                )}
+
+                                {!hasSavedPlaces ? (
+                                    !error && (
+                                        <div className="space-y-4 text-center">
+                                            <div className="rounded-xl border border-dashed border-border bg-muted/30 px-4 py-7">
+                                                <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-brand/10 text-brand">
+                                                    <Bookmark
+                                                        className="size-6"
                                                         aria-hidden="true"
                                                     />
                                                 </div>
 
-                                                <div className="min-w-0 flex-1">
-                                                    <p className="truncate text-sm font-semibold text-foreground">
-                                                        {place.name}
-                                                    </p>
+                                                <h3 className="mt-4 text-sm font-semibold">
+                                                    No saved places yet
+                                                </h3>
 
-                                                    <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
-                                                        <MapPin
-                                                            className="size-3.5 shrink-0"
-                                                            aria-hidden="true"
-                                                        />
+                                                <p className="mt-2 text-xs leading-5 text-muted-foreground">
+                                                    Tap the bookmark icon on a
+                                                    restaurant to add it to your
+                                                    collection.
+                                                </p>
+                                            </div>
 
-                                                        <span className="truncate">
-                                                            {place.city}
-                                                        </span>
-                                                    </p>
-                                                </div>
-
-                                                <Bookmark
-                                                    className="size-4 shrink-0 fill-current text-brand"
-                                                    aria-hidden="true"
-                                                />
-                                            </Link>
-                                        </li>
-                                    ))}
-                                </ul>
+                                            <button
+                                                type="button"
+                                                onClick={() => closePanel()}
+                                                className="inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-brand px-4 text-sm font-semibold text-white hover:bg-brand-dark"
+                                            >
+                                                Explore restaurants
+                                            </button>
+                                        </div>
+                                    )
+                                ) : (
+                                    <SavedPlacesList
+                                        places={savedPlaces}
+                                        onNavigate={() => closePanel(false)}
+                                    />
+                                )}
                             </div>
                         )}
                     </div>
