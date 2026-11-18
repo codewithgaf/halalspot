@@ -3,12 +3,39 @@
 namespace App\Http\Controllers;
 
 use App\Models\Place;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class SavedPlaceController extends Controller
 {
+    /**
+     * Return the authenticated user's published saved places.
+     */
+    public function index(Request $request): JsonResponse
+    {
+        $places = $request->user()
+            ->savedPlaces()
+            ->where('places.publication_status', 'published')
+            ->orderByPivot('created_at', 'desc')
+            ->get([
+                'places.id',
+                'places.name',
+                'places.slug',
+                'places.city',
+            ]);
+
+        return response()->json([
+            'data' => $places->map(fn (Place $place) => [
+                'id' => $place->id,
+                'name' => $place->name,
+                'slug' => $place->slug,
+                'city' => $place->city,
+            ])->values()->all(),
+        ]);
+    }
+
     /**
      * Save a published restaurant for the authenticated user.
      */

@@ -20,6 +20,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('/dashboard', 'dashboard')
         ->name('dashboard');
 
+    Route::get(
+        '/saved-places',
+        [SavedPlaceController::class, 'index']
+    )->name('saved-places.index');
+
     Route::post(
         '/saved-places/{place}',
         [SavedPlaceController::class, 'store']
