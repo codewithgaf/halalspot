@@ -26,6 +26,7 @@ class ListSavedPlacesTest extends TestCase
 
         $place->forceFill([
             'publication_status' => $status,
+            'published_at' => now(),
         ])->save();
 
         return $place;
