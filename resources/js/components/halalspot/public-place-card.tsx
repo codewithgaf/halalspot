@@ -1,15 +1,35 @@
-import { MapPin, UtensilsCrossed } from 'lucide-react';
+import { Link, usePage } from '@inertiajs/react';
+import { Bookmark, LoaderCircle, MapPin, UtensilsCrossed } from 'lucide-react';
+
+import { useSavedPlaces } from '@/contexts/saved-places-context';
 import type { PublicPlace } from '@/types/halalspot/public-place';
-import { Link } from '@inertiajs/react';
 
 type PublicPlaceCardProps = {
     place: PublicPlace;
+    onSaveRequest?: (place: PublicPlace) => void;
+    isPending?: boolean;
+    isBookmarkDisabled?: boolean;
 };
 
-export default function PublicPlaceCard({ place }: PublicPlaceCardProps) {
+export default function PublicPlaceCard({
+    place,
+    onSaveRequest,
+    isPending = false,
+    isBookmarkDisabled = false,
+}: PublicPlaceCardProps) {
+    const { auth } = usePage().props;
+    const { savedIds, isLoading, error } = useSavedPlaces();
+
+    const canSavePlaces = auth.canSavePlaces;
+    const isSaved = canSavePlaces && savedIds.has(place.id);
+
+    // A failed request must not be mistaken for an empty collection.
+    const isBookmarkStateUnavailable =
+        canSavePlaces && (isLoading || error !== null);
+
     return (
-        <article className="overflow-hidden rounded-2xl border border-border bg-background shadow-sm">
-            <div className="flex aspect-video items-center justify-center bg-brand/10">
+        <article className="overflow-hidden rounded-2xl border border-border bg-background shadow-sm transition-shadow hover:shadow-md">
+            <div className="relative flex aspect-video items-center justify-center bg-brand/10">
                 {place.imageUrl ? (
                     <img
                         src={place.imageUrl}
@@ -22,6 +42,47 @@ export default function PublicPlaceCard({ place }: PublicPlaceCardProps) {
                         aria-hidden="true"
                     />
                 )}
+
+                <button
+                    type="button"
+                    aria-label={
+                        isPending
+                            ? `Updating bookmark for ${place.name}`
+                            : isSaved
+                              ? `Unsave ${place.name}`
+                              : `Save ${place.name}`
+                    }
+                    title={
+                        isPending
+                            ? 'Updating saved places...'
+                            : isSaved
+                              ? `Unsave ${place.name}`
+                              : `Save ${place.name}`
+                    }
+                    aria-pressed={
+                        isBookmarkStateUnavailable ? undefined : isSaved
+                    }
+                    disabled={
+                        isPending ||
+                        isBookmarkDisabled ||
+                        isBookmarkStateUnavailable
+                    }
+                    onClick={() => onSaveRequest?.(place)}
+                    className="absolute top-3 right-3 inline-flex size-11 items-center justify-center rounded-xl border border-border/70 bg-background/95 text-brand shadow-sm transition-colors hover:bg-brand hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:cursor-not-allowed disabled:opacity-60 motion-reduce:transition-none"
+                >
+                    {isPending ? (
+                        <LoaderCircle
+                            className="size-5 animate-spin motion-reduce:animate-none"
+                            aria-hidden="true"
+                        />
+                    ) : (
+                        <Bookmark
+                            className="size-5"
+                            fill={isSaved ? 'currentColor' : 'none'}
+                            aria-hidden="true"
+                        />
+                    )}
+                </button>
             </div>
 
             <div className="space-y-4 p-4 sm:p-5">

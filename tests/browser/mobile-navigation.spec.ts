@@ -20,12 +20,15 @@ test('guest can open and close mobile navigation', async ({ page }) => {
     });
 
     await expect(navigation).toBeVisible();
-    await expect(navigation.getByRole('link', { name: 'Home' })).toBeVisible();
+
     await expect(
-        navigation.getByRole('link', { name: 'Log in' }),
+        navigation.getByRole('link', { name: 'Discover' }),
     ).toBeVisible();
+
+    await expect(navigation.getByRole('link', { name: 'About' })).toBeVisible();
+
     await expect(
-        navigation.getByRole('link', { name: 'Register' }),
+        navigation.getByRole('link', { name: 'Sign in' }),
     ).toBeVisible();
 
     await page.keyboard.press('Escape');
@@ -41,6 +44,7 @@ test('mobile navigation supports keyboard interaction', async ({ page }) => {
     });
 
     await menuButton.focus();
+
     await expect(menuButton).toBeFocused();
 
     await page.keyboard.press('Enter');
@@ -54,5 +58,6 @@ test('mobile navigation supports keyboard interaction', async ({ page }) => {
     await page.keyboard.press('Escape');
 
     await expect(navigation).not.toBeVisible();
+
     await expect(menuButton).toBeFocused();
 });

@@ -13,15 +13,15 @@ test('guest can access desktop navigation', async ({ page }) => {
 
     await expect(navigation).toBeVisible();
 
-    await expect(navigation.getByRole('link', { name: 'Home' })).toBeVisible();
-
     await expect(
-        navigation.getByRole('link', { name: 'Log in' }),
+        navigation.getByRole('link', { name: 'Discover' }),
     ).toBeVisible();
 
-    await expect(
-        navigation.getByRole('link', { name: 'Register' }),
-    ).toBeVisible();
+    await expect(navigation.getByRole('link', { name: 'About' })).toBeVisible();
+
+    // Sign in belongs to the header actions,
+    // not the primary navigation.
+    await expect(page.getByRole('link', { name: 'Sign in' })).toBeVisible();
 
     await expect(
         page.getByRole('button', {

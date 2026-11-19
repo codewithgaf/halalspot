@@ -1,5 +1,8 @@
 import type { ReactNode } from 'react';
+
+import FloatingSavedPlaces from '@/components/halalspot/floating-saved-places';
 import SiteHeader from '@/components/halalspot/site-header';
+import { SavedPlacesProvider } from '@/contexts/saved-places-context';
 
 type PublicLayoutProps = {
     children: ReactNode;
@@ -7,12 +10,16 @@ type PublicLayoutProps = {
 
 export default function PublicLayout({ children }: PublicLayoutProps) {
     return (
-        <div className="flex min-h-screen flex-col bg-background text-foreground">
-            <SiteHeader />
+        <SavedPlacesProvider>
+            <div className="flex min-h-screen flex-col bg-background text-foreground">
+                <SiteHeader />
 
-            <main id="main-content" className="flex-1">
-                {children}
-            </main>
-        </div>
+                <main id="main-content" className="flex-1">
+                    {children}
+                </main>
+
+                <FloatingSavedPlaces />
+            </div>
+        </SavedPlacesProvider>
     );
 }
