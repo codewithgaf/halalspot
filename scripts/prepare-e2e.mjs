@@ -49,4 +49,6 @@ artisan(['migrate', '--force', '--no-interaction']);
 
 artisan(['db:seed', '--class=E2ePlaceSeeder', '--force', '--no-interaction']);
 
+artisan(['db:seed', '--class=E2eUserSeeder', '--force', '--no-interaction']);
+
 console.log('E2E database prepared successfully.');

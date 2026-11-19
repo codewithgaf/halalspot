@@ -30,6 +30,7 @@ export default defineConfig({
                 APP_ENV: 'testing',
                 DB_CONNECTION: 'sqlite',
                 DB_DATABASE: resolve('playwright/.cache/database.sqlite'),
+                DB_URL: '',
                 APP_CONFIG_CACHE: resolve('playwright/.cache/config.php'),
                 SESSION_DRIVER: 'file',
                 CACHE_STORE: 'array',
