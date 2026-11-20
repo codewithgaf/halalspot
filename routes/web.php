@@ -16,10 +16,11 @@ Route::get(
     [PublicPlaceController::class, 'show']
 )->name('restaurants.show');
 
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::inertia('/dashboard', 'dashboard')
-        ->name('dashboard');
+Route::inertia('/dashboard', 'dashboard')
+    ->middleware('auth')
+    ->name('dashboard');
 
+Route::middleware(['auth'])->group(function () {
     Route::get(
         '/saved-places',
         [SavedPlaceController::class, 'index']

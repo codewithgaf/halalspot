@@ -39,9 +39,7 @@ export function useBookmarkActions(
         }
 
         if (!auth.canSavePlaces) {
-            setActionError(
-                'Please verify your email before saving restaurants.',
-            );
+            setActionError('Your account cannot save restaurants right now.');
             return;
         }
 

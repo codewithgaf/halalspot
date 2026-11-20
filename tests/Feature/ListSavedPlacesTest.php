@@ -38,13 +38,22 @@ class ListSavedPlacesTest extends TestCase
             ->assertUnauthorized();
     }
 
-    public function test_unverified_user_cannot_list_saved_places(): void
+    public function test_unverified_user_can_list_only_their_saved_places(): void
     {
         $user = User::factory()->unverified()->create();
+        $otherUser = User::factory()->create();
+
+        $ownPlace = $this->createPlace('unverified-own-place');
+        $otherPlace = $this->createPlace('another-users-place');
+
+        $user->savedPlaces()->attach($ownPlace->id);
+        $otherUser->savedPlaces()->attach($otherPlace->id);
 
         $this->actingAs($user)
             ->getJson('/saved-places')
-            ->assertForbidden();
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.id', (string) $ownPlace->id);
     }
 
     public function test_user_sees_only_their_own_saved_places(): void

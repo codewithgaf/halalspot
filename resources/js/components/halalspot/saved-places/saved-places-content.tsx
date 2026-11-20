@@ -7,7 +7,6 @@ import type { SavedPlace } from '@/types/halalspot/saved-place';
 
 type SavedPlacesContentProps = {
     isGuest: boolean;
-    isUnverified: boolean;
     savedPlaces: SavedPlace[];
     isLoading: boolean;
     error: string | null;
@@ -17,7 +16,6 @@ type SavedPlacesContentProps = {
 
 export default function SavedPlacesContent({
     isGuest,
-    isUnverified,
     savedPlaces,
     isLoading,
     error,
@@ -59,33 +57,6 @@ export default function SavedPlacesContent({
                     className="inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-border px-4 text-sm font-semibold text-brand hover:bg-brand/5"
                 >
                     Create free account
-                </Link>
-            </div>
-        );
-    }
-
-    if (isUnverified) {
-        return (
-            <div className="space-y-4 text-center">
-                <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-brand/10 text-brand">
-                    <Bookmark className="size-6" aria-hidden="true" />
-                </div>
-
-                <div>
-                    <h3 className="text-sm font-semibold">Verify your email</h3>
-
-                    <p className="mt-2 text-xs leading-5 text-muted-foreground">
-                        Verify your email address before accessing your saved
-                        restaurants.
-                    </p>
-                </div>
-
-                <Link
-                    href="/email/verify"
-                    onClick={() => onClose(false)}
-                    className="inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-brand px-4 text-sm font-semibold text-white hover:bg-brand-dark"
-                >
-                    Verify email
                 </Link>
             </div>
         );
