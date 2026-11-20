@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 
 test('login screen can be rendered', function () {
@@ -53,4 +54,30 @@ test('users are rate limited', function () {
     ]);
 
     $response->assertTooManyRequests();
+});
+
+test('successful login upgrades an outdated password hash', function () {
+    config()->set('hashing.driver', 'bcrypt');
+    config()->set('hashing.bcrypt.rounds', 12);
+
+    $user = User::factory()->create();
+
+    // Simulate an older password hash.
+    $user->forceFill([
+        'password' => Hash::make('password', ['rounds' => 4]),
+    ])->save();
+
+    expect(Hash::needsRehash($user->fresh()->password))
+        ->toBeTrue();
+
+    $this->post(route('login.store'), [
+        'email' => $user->email,
+        'password' => 'password',
+    ])->assertRedirect(route('dashboard'));
+
+    $this->assertAuthenticatedAs($user);
+
+    // A successful login should upgrade the hash.
+    expect(Hash::needsRehash($user->fresh()->password))
+        ->toBeFalse();
 });

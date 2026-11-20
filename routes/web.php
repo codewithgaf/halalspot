@@ -3,6 +3,7 @@
 
 use App\Http\Controllers\PublicPlaceController;
 use App\Http\Controllers\SavedPlaceController;
+use App\Http\Middleware\EnsureAccountIsActive;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [PublicPlaceController::class, 'index'])
@@ -17,10 +18,10 @@ Route::get(
 )->name('restaurants.show');
 
 Route::inertia('/dashboard', 'dashboard')
-    ->middleware('auth')
+    ->middleware(['auth', EnsureAccountIsActive::class])
     ->name('dashboard');
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
     Route::get(
         '/saved-places',
         [SavedPlaceController::class, 'index']

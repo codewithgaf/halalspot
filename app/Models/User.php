@@ -46,6 +46,10 @@ class User extends Authenticatable implements MustVerifyEmail
         ];
     }
 
+    protected $attributes = [
+        'account_status' => 'active',
+    ];
+
     /**
      * Places saved by this user.
      *
