@@ -135,4 +135,25 @@ class UnsavePlaceTest extends TestCase
             'place_id' => $place->id,
         ]);
     }
+
+    public function test_suspended_user_cannot_unsave_a_place(): void
+    {
+        $user = User::factory()->create();
+
+        $user->forceFill([
+            'account_status' => 'suspended',
+        ])->save();
+
+        $place = $this->createPlace('suspended-unsave');
+        $user->savedPlaces()->attach($place->id);
+
+        $this->actingAs($user)
+            ->deleteJson("/saved-places/{$place->id}")
+            ->assertForbidden();
+
+        $this->assertDatabaseHas('saved_places', [
+            'user_id' => $user->id,
+            'place_id' => $place->id,
+        ]);
+    }
 }

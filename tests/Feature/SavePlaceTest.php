@@ -156,4 +156,21 @@ class SavePlaceTest extends TestCase
 
         $this->assertDatabaseCount('saved_places', 0);
     }
+
+    public function test_suspended_user_cannot_save_a_place(): void
+    {
+        $user = User::factory()->create();
+
+        $user->forceFill([
+            'account_status' => 'suspended',
+        ])->save();
+
+        $place = $this->createPlace('suspended-save');
+
+        $this->actingAs($user)
+            ->postJson("/saved-places/{$place->id}")
+            ->assertForbidden();
+
+        $this->assertDatabaseCount('saved_places', 0);
+    }
 }
