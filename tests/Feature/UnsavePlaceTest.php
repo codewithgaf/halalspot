@@ -99,7 +99,7 @@ class UnsavePlaceTest extends TestCase
         ]);
     }
 
-    public function test_unverified_user_cannot_unsave_a_place(): void
+    public function test_unverified_user_can_unsave_their_own_place(): void
     {
         $user = User::factory()->unverified()->create();
         $place = $this->createPlace('unverified-unsave');
@@ -108,9 +108,9 @@ class UnsavePlaceTest extends TestCase
 
         $this->actingAs($user)
             ->deleteJson("/saved-places/{$place->id}")
-            ->assertForbidden();
+            ->assertRedirect();
 
-        $this->assertDatabaseHas('saved_places', [
+        $this->assertDatabaseMissing('saved_places', [
             'user_id' => $user->id,
             'place_id' => $place->id,
         ]);

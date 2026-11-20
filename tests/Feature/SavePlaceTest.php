@@ -131,16 +131,19 @@ class SavePlaceTest extends TestCase
         ]);
     }
 
-    public function test_unverified_user_cannot_save_a_place(): void
+    public function test_unverified_user_can_save_a_published_place(): void
     {
         $user = User::factory()->unverified()->create();
         $place = $this->createPlace('unverified-restaurant');
 
         $this->actingAs($user)
             ->postJson("/saved-places/{$place->id}")
-            ->assertForbidden();
+            ->assertRedirect();
 
-        $this->assertDatabaseCount('saved_places', 0);
+        $this->assertDatabaseHas('saved_places', [
+            'user_id' => $user->id,
+            'place_id' => $place->id,
+        ]);
     }
 
     public function test_user_cannot_save_a_nonexistent_place(): void

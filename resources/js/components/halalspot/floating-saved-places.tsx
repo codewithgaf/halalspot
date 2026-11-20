@@ -15,7 +15,6 @@ export default function FloatingSavedPlaces() {
         useFloatingPanel();
 
     const isGuest = auth.user === null;
-    const isUnverified = !isGuest && !auth.canSavePlaces;
 
     const savedCount = savedPlaces.length;
     const hasSavedPlaces = savedCount > 0;
@@ -36,7 +35,7 @@ export default function FloatingSavedPlaces() {
             >
                 <Bookmark className="size-6" aria-hidden="true" />
 
-                {!isGuest && !isUnverified && hasSavedPlaces && (
+                {auth.canSavePlaces && hasSavedPlaces && (
                     <span
                         aria-hidden="true"
                         className="absolute -top-2 -right-2 flex min-w-6 items-center justify-center rounded-full border-2 border-background bg-foreground px-1 text-xs font-semibold text-background"
@@ -81,7 +80,6 @@ export default function FloatingSavedPlaces() {
                     <div className="min-h-0 overflow-y-auto p-4">
                         <SavedPlacesContent
                             isGuest={isGuest}
-                            isUnverified={isUnverified}
                             savedPlaces={savedPlaces}
                             isLoading={isLoading}
                             error={error}

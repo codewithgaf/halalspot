@@ -21,7 +21,7 @@ class SharedSavedPlacesAuthTest extends TestCase
             );
     }
 
-    public function test_unverified_user_cannot_use_saved_places(): void
+    public function test_unverified_user_can_use_saved_places(): void
     {
         $user = User::factory()->unverified()->create();
 
@@ -30,7 +30,7 @@ class SharedSavedPlacesAuthTest extends TestCase
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->where('auth.user.id', $user->id)
-                ->where('auth.canSavePlaces', false)
+                ->where('auth.canSavePlaces', true)
             );
     }
 

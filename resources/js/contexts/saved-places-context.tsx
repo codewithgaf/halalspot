@@ -134,7 +134,7 @@ export function SavedPlacesProvider({ children }: SavedPlacesProviderProps) {
 
                     if (response.status === 403) {
                         throw new Error(
-                            'Verify your email to access saved places.',
+                            'You do not have permission to access Saved Places.',
                         );
                     }
 
