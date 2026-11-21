@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Settings\LocalitySearchController;
 use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\Settings\SecurityController;
 use App\Http\Middleware\EnsureAccountIsActive;
@@ -11,6 +12,7 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
 
     Route::get('settings/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('settings/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::get('settings/localities/search', [LocalitySearchController::class, 'index'])->name('localities.search');
 });
 
 Route::middleware(['auth', 'verified', EnsureAccountIsActive::class])->group(function () {
