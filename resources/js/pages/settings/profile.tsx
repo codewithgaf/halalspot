@@ -1,20 +1,32 @@
 import { Form, Head, usePage } from '@inertiajs/react';
 import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
 import DeleteUser from '@/components/delete-user';
+import LocalityAutocomplete from '@/components/locality-autocomplete';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { edit } from '@/routes/profile';
+
 import type { Auth } from '@/types';
 
 type PageProps = {
     auth: Auth;
+    profile: {
+        bio: string | null;
+        locality_code: string | null;
+        city: {
+            code: string;
+            name: string;
+            region: string;
+            province: string | null;
+        } | null;
+    };
 };
 
 export default function Profile() {
-    const { auth } = usePage<PageProps>().props;
+    const { auth, profile } = usePage<PageProps>().props;
     const user = auth.user;
     if (!user) {
         return (
@@ -86,6 +98,34 @@ export default function Profile() {
                                     message={errors.email}
                                 />
                             </div>
+
+                            <div className="grid gap-2">
+                                <Label htmlFor="bio">About me (optional)</Label>
+
+                                <textarea
+                                    id="bio"
+                                    name="bio"
+                                    defaultValue={profile.bio ?? ''}
+                                    maxLength={500}
+                                    rows={4}
+                                    placeholder="Tell us a little about yourself..."
+                                    className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                                />
+
+                                <p className="text-xs text-muted-foreground">
+                                    Maximum 500 characters. Private by default.
+                                </p>
+
+                                <InputError
+                                    className="mt-2"
+                                    message={errors.bio}
+                                />
+                            </div>
+
+                            <LocalityAutocomplete
+                                initialCity={profile.city}
+                                error={errors.locality_code}
+                            />
 
                             <div className="flex items-center gap-4">
                                 <Button
