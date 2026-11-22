@@ -2,6 +2,7 @@ import { Form, Head, usePage } from '@inertiajs/react';
 import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
 import DeleteUser from '@/components/delete-user';
 import LocalityAutocomplete from '@/components/locality-autocomplete';
+import ProfileAvatarSection from '@/components/profile-avatar-section';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
@@ -22,6 +23,7 @@ type PageProps = {
             region: string;
             province: string | null;
         } | null;
+        avatar_url: string | null;
     };
 };
 
@@ -49,6 +51,10 @@ export default function Profile() {
                     variant="small"
                     title="Profile"
                     description="Update your name and email address"
+                />
+                <ProfileAvatarSection
+                    avatarUrl={profile.avatar_url}
+                    userName={user.name}
                 />
 
                 <Form

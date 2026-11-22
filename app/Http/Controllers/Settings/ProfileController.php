@@ -11,8 +11,11 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
+use Throwable;
 
 class ProfileController extends Controller
 {
@@ -23,6 +26,7 @@ class ProfileController extends Controller
     {
         $user = $request->user();
         $profile = $user->profile;
+        $avatarPath = $profile?->avatar_path;
 
         return Inertia::render('settings/profile', [
             'mustVerifyEmail' => $user instanceof MustVerifyEmail,
@@ -31,8 +35,13 @@ class ProfileController extends Controller
                 'bio' => $profile?->bio,
                 'locality_code' => $profile?->locality_code,
                 'city' => $profile?->locality_code
-                        ? $directory->find($profile->locality_code)
-                        : null,
+                    ? $directory->find($profile->locality_code)
+                    : null,
+                'avatar_url' => is_string($avatarPath) && $avatarPath !== ''
+                    ? route('profile.avatar.show', [
+                        'v' => hash('sha256', $avatarPath),
+                    ])
+                    : null,
             ],
         ]);
     }
@@ -85,9 +94,28 @@ class ProfileController extends Controller
     {
         $user = $request->user();
 
+        // Capture the path before database cascading deletes
+        // remove the associated user_profiles record.
+        $avatarPath = $user->profile?->avatar_path;
+
+        // Logout saves the remember token, so it must happen before deletion.
         Auth::logout();
 
         $user->delete();
+
+        // Filesystem operations are separate from database deletion.
+        if (is_string($avatarPath) && $avatarPath !== '') {
+            try {
+                if (! Storage::disk('local')->delete($avatarPath)) {
+                    Log::warning(
+                        'Avatar cleanup failed after account deletion.',
+                        ['path' => $avatarPath]
+                    );
+                }
+            } catch (Throwable $exception) {
+                report($exception);
+            }
+        }
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Settings\LocalitySearchController;
+use App\Http\Controllers\Settings\ProfileAvatarController;
 use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\Settings\SecurityController;
 use App\Http\Middleware\EnsureAccountIsActive;
@@ -13,6 +14,11 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
     Route::get('settings/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('settings/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::get('settings/localities/search', [LocalitySearchController::class, 'index'])->name('localities.search');
+
+    // Avatar Uploads
+    Route::get('settings/profile/avatar', [ProfileAvatarController::class, 'show'])->name('profile.avatar.show');
+    Route::post('settings/profile/avatar', [ProfileAvatarController::class, 'store'])->name('profile.avatar.store');
+    Route::delete('settings/profile/avatar', [ProfileAvatarController::class, 'destroy'])->name('profile.avatar.destroy');
 });
 
 Route::middleware(['auth', 'verified', EnsureAccountIsActive::class])->group(function () {
