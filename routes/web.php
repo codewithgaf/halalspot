@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PublicPlaceController;
 use App\Http\Controllers\SavedPlaceController;
 use App\Http\Middleware\EnsureAccountIsActive;
@@ -16,7 +17,7 @@ Route::get(
     [PublicPlaceController::class, 'show']
 )->name('restaurants.show');
 
-Route::inertia('/dashboard', 'dashboard')
+Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', EnsureAccountIsActive::class])
     ->name('dashboard');
 
