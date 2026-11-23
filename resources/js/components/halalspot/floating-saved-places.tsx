@@ -1,5 +1,6 @@
 import { usePage } from '@inertiajs/react';
 import { Bookmark, X } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 import SavedPlacesContent from '@/components/halalspot/saved-places/saved-places-content';
 import { useSavedPlaces } from '@/contexts/saved-places-context';
@@ -31,7 +32,12 @@ export default function FloatingSavedPlaces() {
                     isOpen ? 'floating-saved-places-panel' : undefined
                 }
                 onClick={togglePanel}
-                className="pointer-events-auto absolute right-4 bottom-[max(1rem,env(safe-area-inset-bottom))] inline-flex size-14 items-center justify-center rounded-2xl bg-brand text-white shadow-lg transition-colors hover:bg-brand-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand motion-reduce:transition-none sm:right-6 sm:bottom-6"
+                className={cn(
+                    'pointer-events-auto absolute right-4 inline-flex size-14 items-center justify-center rounded-2xl bg-brand text-white shadow-lg transition-colors hover:bg-brand-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand motion-reduce:transition-none sm:right-6',
+                    isGuest
+                        ? 'bottom-[max(1rem,env(safe-area-inset-bottom))] sm:bottom-6'
+                        : 'bottom-[calc(6rem+env(safe-area-inset-bottom))] md:bottom-6',
+                )}
             >
                 <Bookmark className="size-6" aria-hidden="true" />
 
@@ -51,7 +57,12 @@ export default function FloatingSavedPlaces() {
                     ref={panelRef}
                     id="floating-saved-places-panel"
                     aria-label="Saved places"
-                    className="pointer-events-auto absolute right-4 bottom-[max(5rem,calc(env(safe-area-inset-bottom)+4rem))] flex max-h-[70dvh] w-[calc(100vw-2rem)] max-w-sm flex-col overflow-hidden rounded-2xl border border-border bg-background text-foreground shadow-2xl sm:right-6 sm:bottom-24"
+                    className={cn(
+                        'pointer-events-auto absolute right-4 flex max-h-[70dvh] w-[calc(100vw-2rem)] max-w-sm flex-col overflow-hidden rounded-2xl border border-border bg-background text-foreground shadow-2xl sm:right-6',
+                        isGuest
+                            ? 'bottom-[max(5rem,calc(env(safe-area-inset-bottom)+4rem))] sm:bottom-24'
+                            : 'bottom-[calc(10rem+env(safe-area-inset-bottom))] md:bottom-24',
+                    )}
                 >
                     {/* Header */}
                     <div className="flex shrink-0 items-start justify-between gap-3 border-b border-border p-4">

@@ -47,7 +47,7 @@ export default function Dashboard() {
                 {/* Welcome banner */}
                 <section
                     aria-label="Welcome"
-                    className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-900 to-emerald-600 p-6 text-white sm:p-8"
+                    className="relative overflow-hidden rounded-2xl bg-linear-to-br from-emerald-900 to-emerald-600 p-6 text-white sm:p-8"
                 >
                     <div className="pointer-events-none absolute -top-20 -right-16 size-64 rounded-full border border-white/20" />
 

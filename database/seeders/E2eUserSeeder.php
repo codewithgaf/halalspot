@@ -48,6 +48,13 @@ class E2eUserSeeder extends Seeder
             'password' => Hash::make('playwright-test-only-2026'),
         ]);
 
+        User::factory()->create([
+            'name' => 'E2E Saved Page User',
+            'email' => 'saved-page-user@example.test',
+            'email_verified_at' => now(),
+            'password' => Hash::make('playwright-test-only-2026'),
+        ]);
+
         foreach (['isolation-a@example.test', 'isolation-b@example.test'] as $email) {
             User::factory()->create([
                 'name' => 'E2E Isolation User',
