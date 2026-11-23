@@ -3,6 +3,7 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PublicPlaceController;
 use App\Http\Controllers\SavedPlaceController;
+use App\Http\Controllers\SavedPlacesPageController;
 use App\Http\Middleware\EnsureAccountIsActive;
 use Illuminate\Support\Facades\Route;
 
@@ -20,6 +21,10 @@ Route::get(
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', EnsureAccountIsActive::class])
     ->name('dashboard');
+
+Route::get('/account/saved-places', [SavedPlacesPageController::class, 'index'])
+    ->middleware(['auth', EnsureAccountIsActive::class])
+    ->name('account.saved-places');
 
 Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
     Route::get(
