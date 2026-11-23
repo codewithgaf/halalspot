@@ -1,6 +1,8 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import { ArrowUpRight, Bookmark, MessageSquare, Sparkles } from 'lucide-react';
 
+import EmailVerificationStatus from '@/components/dashboard/email-verification-status';
+
 import { dashboard } from '@/routes';
 import { edit as editProfile } from '@/routes/profile';
 import type { Auth } from '@/types';
@@ -23,6 +25,7 @@ export default function Dashboard() {
         usePage<DashboardPageProps>().props;
 
     const firstName = auth.user?.name?.trim().split(/\s+/)[0] || 'there';
+    const emailVerified = Boolean(auth.user?.email_verified_at);
 
     return (
         <>
@@ -43,6 +46,7 @@ export default function Dashboard() {
                         close.
                     </p>
                 </header>
+                <EmailVerificationStatus verified={emailVerified} />
 
                 {/* Welcome banner */}
                 <section
