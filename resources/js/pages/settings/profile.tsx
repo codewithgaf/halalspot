@@ -1,5 +1,6 @@
 import { Form, Head, usePage } from '@inertiajs/react';
 import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
+import ContributorPrivacySection from '@/components/contributor-privacy-section';
 import DeleteUser from '@/components/delete-user';
 import LocalityAutocomplete from '@/components/locality-autocomplete';
 import ProfileAvatarSection from '@/components/profile-avatar-section';
@@ -24,6 +25,9 @@ type PageProps = {
             province: string | null;
         } | null;
         avatar_url: string | null;
+        public_profile_enabled: boolean;
+        share_bio: boolean;
+        share_city: boolean;
     };
 };
 
@@ -144,6 +148,13 @@ export default function Profile() {
                         </>
                     )}
                 </Form>
+                <ContributorPrivacySection
+                    settings={{
+                        public_profile_enabled: profile.public_profile_enabled,
+                        share_bio: profile.share_bio,
+                        share_city: profile.share_city,
+                    }}
+                />
             </div>
 
             <DeleteUser />
