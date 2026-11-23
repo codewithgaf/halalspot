@@ -42,6 +42,9 @@ class ProfileController extends Controller
                         'v' => hash('sha256', $avatarPath),
                     ])
                     : null,
+                'public_profile_enabled' => $profile->public_profile_enabled ?? false,
+                'share_bio' => $profile->share_bio ?? false,
+                'share_city' => $profile->share_city ?? false,
             ],
         ]);
     }

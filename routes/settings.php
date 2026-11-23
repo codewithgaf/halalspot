@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Settings\ContributorPrivacySettingsController;
 use App\Http\Controllers\Settings\LocalitySearchController;
 use App\Http\Controllers\Settings\ProfileAvatarController;
 use App\Http\Controllers\Settings\ProfileController;
@@ -19,6 +20,9 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
     Route::get('settings/profile/avatar', [ProfileAvatarController::class, 'show'])->name('profile.avatar.show');
     Route::post('settings/profile/avatar', [ProfileAvatarController::class, 'store'])->name('profile.avatar.store');
     Route::delete('settings/profile/avatar', [ProfileAvatarController::class, 'destroy'])->name('profile.avatar.destroy');
+
+    Route::patch('settings/profile/privacy', [ContributorPrivacySettingsController::class, 'update']
+    )->name('profile.privacy.update');
 });
 
 Route::middleware(['auth', 'verified', EnsureAccountIsActive::class])->group(function () {
