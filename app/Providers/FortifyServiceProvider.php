@@ -78,6 +78,10 @@ class FortifyServiceProvider extends ServiceProvider
         ]));
 
         Fortify::confirmPasswordView(fn () => Inertia::render('auth/confirm-password'));
+
+        Fortify::twoFactorChallengeView(
+            fn () => Inertia::render('auth/two-factor-challenge')
+        );
     }
 
     /**
@@ -90,6 +94,13 @@ class FortifyServiceProvider extends ServiceProvider
             $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())).'|'.$request->ip());
 
             return Limit::perMinute(5)->by($throttleKey);
+        });
+
+        RateLimiter::for('two-factor', function (Request $request) {
+            $key = $request->session()->get('login.id')
+                ?? $request->ip();
+
+            return Limit::perMinute(5)->by($key);
         });
     }
 
