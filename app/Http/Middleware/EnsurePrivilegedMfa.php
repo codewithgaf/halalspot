@@ -16,8 +16,7 @@ class EnsurePrivilegedMfa
             abort(401);
         }
 
-        // Load the current database state, not a potentially stale user object
-        // held by the authentication guard during this request or test.
+        // Read current database state to detect MFA revocation.
         $user = $authenticatedUser->fresh();
 
         if ($user === null) {
@@ -32,11 +31,31 @@ class EnsurePrivilegedMfa
                 abort(403, 'Two-factor authentication is required.');
             }
 
+            // Verify that this session completed MFA for this user.
             if (
                 $request->session()->get('auth.mfa_verified_user_id')
                 !== $user->getAuthIdentifier()
             ) {
                 abort(403, 'MFA verification is required for this session.');
+            }
+
+            // Verify that the MFA enrollment has not been replaced.
+            $encryptedSecret = $user->getRawOriginal('two_factor_secret');
+
+            $sessionFingerprint = $request->session()->get(
+                'auth.mfa_verified_secret_fingerprint'
+            );
+
+            if (
+                ! is_string($encryptedSecret) ||
+                $encryptedSecret === '' ||
+                ! is_string($sessionFingerprint) ||
+                ! hash_equals(
+                    hash('sha256', $encryptedSecret),
+                    $sessionFingerprint
+                )
+            ) {
+                abort(403, 'MFA re-verification is required.');
             }
         }
 

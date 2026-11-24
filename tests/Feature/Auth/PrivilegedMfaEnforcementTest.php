@@ -472,3 +472,32 @@ test('successful recovery code establishes privileged MFA session assurance', fu
         ->assertOk()
         ->assertSee('Authorized');
 });
+
+test('rotating MFA credentials invalidates previous privileged assurance', function () {
+    $admin = User::factory()->create();
+
+    $admin->assignRole('administrator');
+
+    app(EnableTwoFactorAuthentication::class)($admin);
+
+    $admin->forceFill([
+        'two_factor_confirmed_at' => now(),
+    ])->save();
+
+    loginWithConfirmedMfa($this, $admin);
+
+    $this->get('/_test/security/privileged-publish')
+        ->assertOk();
+
+    // Simulate replacement of the MFA enrollment.
+    $admin->forceFill([
+        'two_factor_secret' => encrypt(
+            app(Google2FA::class)->generateSecretKey()
+        ),
+        'two_factor_confirmed_at' => now(),
+    ])->save();
+
+    // Previous session assurance must no longer authorize access.
+    $this->get('/_test/security/privileged-publish')
+        ->assertForbidden();
+});

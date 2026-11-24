@@ -30,10 +30,26 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(
             ValidTwoFactorAuthenticationCodeProvided::class,
             function (ValidTwoFactorAuthenticationCodeProvided $event): void {
-                session()->put(
-                    'auth.mfa_verified_user_id',
-                    $event->user->getAuthIdentifier()
-                );
+                $user = $event->user->fresh();
+
+                if ($user === null) {
+                    return;
+                }
+
+                $encryptedSecret = $user->getRawOriginal('two_factor_secret');
+
+                if (! is_string($encryptedSecret) || $encryptedSecret === '') {
+                    return;
+                }
+
+                // Bind MFA assurance to both the user and current enrollment.
+                session()->put([
+                    'auth.mfa_verified_user_id' => $user->getAuthIdentifier(),
+                    'auth.mfa_verified_secret_fingerprint' => hash(
+                        'sha256',
+                        $encryptedSecret
+                    ),
+                ]);
             }
         );
     }
