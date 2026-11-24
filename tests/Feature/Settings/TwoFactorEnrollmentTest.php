@@ -292,7 +292,7 @@ test('user can cancel pending MFA enrollment', function () {
 
     $user = User::factory()->create();
 
-    app(\Laravel\Fortify\Actions\EnableTwoFactorAuthentication::class)(
+    app(EnableTwoFactorAuthentication::class)(
         $user
     );
 
@@ -321,7 +321,7 @@ test('confirmed MFA user can disable MFA after password confirmation', function 
 
     $user = User::factory()->create();
 
-    app(\Laravel\Fortify\Actions\EnableTwoFactorAuthentication::class)(
+    app(EnableTwoFactorAuthentication::class)(
         $user
     );
 
@@ -354,7 +354,7 @@ test('confirmed MFA cannot be disabled without recent password confirmation', fu
 
     $user = User::factory()->create();
 
-    app(\Laravel\Fortify\Actions\EnableTwoFactorAuthentication::class)(
+    app(EnableTwoFactorAuthentication::class)(
         $user
     );
 
