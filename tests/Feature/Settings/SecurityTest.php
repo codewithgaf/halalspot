@@ -3,6 +3,7 @@
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Testing\AssertableInertia as Assert;
+use Laravel\Fortify\Actions\EnableTwoFactorAuthentication;
 use Laravel\Fortify\Features;
 
 test('security page is displayed', function () {
@@ -94,4 +95,86 @@ test('correct password must be provided to update password', function () {
     $response
         ->assertSessionHasErrors('current_password')
         ->assertRedirect(route('security.edit'));
+});
+
+test('security settings exposes disabled MFA state', function () {
+    $this->skipUnlessFortifyHas(
+        Features::twoFactorAuthentication()
+    );
+
+    $user = User::factory()->create([
+        'email_verified_at' => now(),
+    ]);
+
+    $this->actingAs($user)
+        ->withSession([
+            'auth.password_confirmed_at' => time(),
+        ])
+        ->get(route('security.edit'))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('settings/security')
+            ->where('canManageTwoFactor', true)
+            ->where('twoFactorEnabled', false)
+            ->where('requiresConfirmation', true)
+        );
+});
+
+test('security settings distinguishes pending MFA enrollment', function () {
+    $this->skipUnlessFortifyHas(
+        Features::twoFactorAuthentication()
+    );
+
+    $user = User::factory()->create();
+
+    // Start enrollment without confirming the TOTP.
+    app(EnableTwoFactorAuthentication::class)(
+        $user
+    );
+
+    $this->actingAs($user)
+        ->withSession([
+            'auth.password_confirmed_at' => time(),
+        ])
+        ->get(route('security.edit'))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('settings/security')
+            ->where('canManageTwoFactor', true)
+            ->where('twoFactorEnabled', false)
+            ->where('twoFactorConfirmed', false)
+            ->where('twoFactorPending', true)
+        );
+});
+
+test('security settings identifies confirmed MFA enrollment', function () {
+    $this->skipUnlessFortifyHas(
+        Features::twoFactorAuthentication()
+    );
+
+    $user = User::factory()->create();
+
+    // Start MFA enrollment using Fortify.
+    app(EnableTwoFactorAuthentication::class)(
+        $user
+    );
+
+    // Simulate previously completed enrollment.
+    $user->forceFill([
+        'two_factor_confirmed_at' => now(),
+    ])->save();
+
+    $this->actingAs($user)
+        ->withSession([
+            'auth.password_confirmed_at' => time(),
+        ])
+        ->get(route('security.edit'))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('settings/security')
+            ->where('canManageTwoFactor', true)
+            ->where('twoFactorEnabled', true)
+            ->where('twoFactorConfirmed', true)
+            ->where('twoFactorPending', false)
+        );
 });
