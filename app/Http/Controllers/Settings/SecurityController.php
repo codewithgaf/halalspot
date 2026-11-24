@@ -35,6 +35,13 @@ class SecurityController extends Controller
                 Features::twoFactorAuthentication(),
                 'confirm'
             );
+
+            $props['twoFactorConfirmed'] =
+                $request->user()->two_factor_confirmed_at !== null;
+
+            $props['twoFactorPending'] =
+                $request->user()->two_factor_secret !== null
+                && $request->user()->two_factor_confirmed_at === null;
         }
 
         return Inertia::render('settings/security', $props);

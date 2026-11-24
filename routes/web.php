@@ -1,10 +1,12 @@
 <?php
 
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PublicPlaceController;
 use App\Http\Controllers\SavedPlaceController;
 use App\Http\Controllers\SavedPlacesPageController;
 use App\Http\Middleware\EnsureAccountIsActive;
+use App\Http\Middleware\EnsurePrivilegedMfa;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [PublicPlaceController::class, 'index'])
@@ -42,5 +44,14 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
         [SavedPlaceController::class, 'destroy']
     )->name('saved-places.destroy');
 });
+
+Route::get('/admin', [AdminDashboardController::class, 'index'])
+    ->middleware([
+        'auth',
+        EnsureAccountIsActive::class,
+        EnsurePrivilegedMfa::class,
+        'role:administrator',
+    ])
+    ->name('admin.dashboard');
 
 require __DIR__.'/settings.php';
