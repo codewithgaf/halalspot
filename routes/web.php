@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PublicPlaceController;
 use App\Http\Controllers\SavedPlaceController;
@@ -54,4 +55,12 @@ Route::get('/admin', [AdminDashboardController::class, 'index'])
     ])
     ->name('admin.dashboard');
 
+Route::get('/admin/users', [AdminUserController::class, 'index'])
+    ->middleware([
+        'auth',
+        EnsureAccountIsActive::class,
+        EnsurePrivilegedMfa::class,
+        'role:administrator',
+    ])
+    ->name('admin.users.index');
 require __DIR__.'/settings.php';
