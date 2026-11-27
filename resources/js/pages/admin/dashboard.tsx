@@ -1,12 +1,12 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import {
-    Archive,
     ArrowUpRight,
+    Archive,
     CheckCircle2,
     Clock3,
-    LayoutDashboard,
     MapPin,
     ShieldCheck,
+    Users,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
 
@@ -19,35 +19,33 @@ type DashboardProps = {
     };
 };
 
-type StatCardProps = {
+type MetricProps = {
     label: string;
     value: number;
-    description: string;
+    note: string;
     icon: ReactNode;
-    accent: string;
+    tone: string;
 };
 
-function StatCard({ label, value, description, icon, accent }: StatCardProps) {
+function Metric({ label, value, note, icon, tone }: MetricProps) {
     return (
-        <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md sm:p-6 dark:border-white/10 dark:bg-[#15231f]">
+        <article className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-[0_4px_24px_rgba(15,50,35,0.035)] sm:p-6 dark:border-white/10 dark:bg-[#17241f]">
             <div className="flex items-start justify-between gap-3">
-                <div>
-                    <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400">
-                        {label}
-                    </h3>
-                    <p className="mt-3 text-4xl font-bold tracking-tight text-slate-950 tabular-nums dark:text-white">
-                        {value.toLocaleString()}
-                    </p>
-                </div>
-                <div
-                    className={`flex size-11 items-center justify-center rounded-xl ${accent}`}
+                <span className="text-[13px] font-semibold text-slate-500 dark:text-slate-400">
+                    {label}
+                </span>
+                <span
+                    className={`flex size-10 items-center justify-center rounded-xl ${tone}`}
                     aria-hidden="true"
                 >
                     {icon}
-                </div>
+                </span>
             </div>
-            <p className="mt-4 border-t border-slate-100 pt-3 text-xs text-slate-500 dark:border-white/10 dark:text-slate-400">
-                {description}
+            <p className="mt-3 text-[34px] leading-none font-extrabold tracking-[-0.04em] text-slate-900 tabular-nums dark:text-white">
+                {value.toLocaleString()}
+            </p>
+            <p className="mt-3 text-xs text-slate-400 dark:text-slate-400">
+                {note}
             </p>
         </article>
     );
@@ -60,186 +58,192 @@ export default function Dashboard() {
         draftRestaurants,
         archivedRestaurants,
     } = usePage<DashboardProps>().props.metrics;
-
     const total = Math.max(0, totalRestaurants);
-    const publishedPercent =
-        total > 0
-            ? Math.min(
-                  100,
-                  Math.max(0, Math.round((publishedRestaurants / total) * 100)),
-              )
-            : 0;
-    const draftPercent = total > 0 ? (draftRestaurants / total) * 100 : 0;
-    const publishedWidth = total > 0 ? (publishedRestaurants / total) * 100 : 0;
-    const archivedWidth = total > 0 ? (archivedRestaurants / total) * 100 : 0;
+    const percent = (count: number) =>
+        total === 0 ? 0 : Math.max(0, Math.min(100, (count / total) * 100));
+    const publishedPercent = Math.round(percent(publishedRestaurants));
 
     return (
         <>
             <Head title="Admin · Overview" />
-            <div className="space-y-8">
-                <header className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
+            <div className="space-y-7 sm:space-y-8">
+                <div className="flex flex-wrap items-end justify-between gap-4">
                     <div>
-                        <p className="mb-2 text-xs font-bold tracking-[0.17em] text-emerald-700 uppercase dark:text-emerald-400">
-                            Administration / Overview
+                        <p className="text-[11px] font-bold tracking-[0.18em] text-emerald-700 uppercase dark:text-emerald-400">
+                            Workspace / Overview
                         </p>
-                        <h1 className="text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl dark:text-white">
-                            Directory overview
+                        <h1 className="mt-2 text-[30px] font-extrabold tracking-[-0.04em] text-slate-950 sm:text-[38px] dark:text-white">
+                            Good to see you.
                         </h1>
-                        <p className="mt-3 max-w-xl text-sm leading-relaxed text-slate-500 dark:text-slate-400">
-                            A clear view of the restaurant listings currently
-                            stored in HalalSpot.
+                        <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+                            A snapshot of your HalalSpot restaurant directory.
                         </p>
                     </div>
                     <Link
                         href="/"
-                        className="inline-flex w-fit items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-emerald-300 hover:text-emerald-700 dark:border-white/10 dark:bg-white/5 dark:text-slate-200"
+                        className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-xs font-semibold text-slate-700 transition hover:border-emerald-300 hover:text-emerald-700 focus-visible:outline-2 focus-visible:outline-emerald-500 dark:border-white/15 dark:bg-white/5 dark:text-slate-200"
                     >
                         View public site{' '}
                         <ArrowUpRight className="size-4" aria-hidden="true" />
                     </Link>
-                </header>
+                </div>
 
                 <section
                     aria-label="Restaurant metrics"
-                    className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
+                    className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4"
                 >
-                    <StatCard
+                    <Metric
                         label="Total restaurants"
                         value={totalRestaurants}
-                        description="All directory records"
+                        note="All directory listings"
                         icon={<MapPin className="size-5" />}
-                        accent="bg-slate-100 text-slate-700 dark:bg-white/10 dark:text-slate-200"
+                        tone="bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-slate-200"
                     />
-                    <StatCard
+                    <Metric
                         label="Published"
                         value={publishedRestaurants}
-                        description="Visible in public discovery"
+                        note="Visible to visitors"
                         icon={<CheckCircle2 className="size-5" />}
-                        accent="bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300"
+                        tone="bg-emerald-50 text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-300"
                     />
-                    <StatCard
+                    <Metric
                         label="Drafts"
                         value={draftRestaurants}
-                        description="Not yet publicly visible"
+                        note="Not yet published"
                         icon={<Clock3 className="size-5" />}
-                        accent="bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300"
+                        tone="bg-amber-50 text-amber-700 dark:bg-amber-400/10 dark:text-amber-300"
                     />
-                    <StatCard
+                    <Metric
                         label="Archived"
                         value={archivedRestaurants}
-                        description="Removed from discovery"
+                        note="Out of discovery"
                         icon={<Archive className="size-5" />}
-                        accent="bg-slate-100 text-slate-500 dark:bg-white/10 dark:text-slate-300"
+                        tone="bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-slate-200"
                     />
                 </section>
 
-                <div className="grid gap-5 xl:grid-cols-[minmax(0,1.5fr)_minmax(280px,1fr)]">
+                <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,1.6fr)_minmax(270px,1fr)]">
                     <section
-                        aria-labelledby="listing-health-heading"
-                        className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-[#15231f]"
+                        aria-labelledby="publication-heading"
+                        className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-[0_4px_24px_rgba(15,50,35,0.035)] dark:border-white/10 dark:bg-[#17241f]"
                     >
-                        <div className="flex flex-wrap items-start justify-between gap-4">
+                        <div className="flex flex-wrap items-start justify-between gap-3">
                             <div>
                                 <h2
-                                    id="listing-health-heading"
-                                    className="text-lg font-bold"
+                                    id="publication-heading"
+                                    className="text-base font-bold text-slate-950 dark:text-white"
                                 >
-                                    Listing status
+                                    Publication health
                                 </h2>
-                                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                                    Distribution of existing restaurant records
+                                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                                    How your restaurant listings are distributed
                                 </p>
                             </div>
-                            <span className="rounded-full bg-emerald-50 px-3 py-1.5 text-sm font-bold text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300">
+                            <span className="rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-300">
                                 {publishedPercent}% published
                             </span>
                         </div>
                         <div
                             className="mt-8 flex h-3 overflow-hidden rounded-full bg-slate-100 dark:bg-white/10"
                             role="img"
-                            aria-label={`${publishedRestaurants} published, ${draftRestaurants} draft, ${archivedRestaurants} archived out of ${totalRestaurants} restaurants`}
+                            aria-label={`${publishedRestaurants} published, ${draftRestaurants} draft and ${archivedRestaurants} archived out of ${totalRestaurants} total restaurants`}
                         >
                             <div
                                 className="bg-emerald-600"
-                                style={{ width: `${publishedWidth}%` }}
+                                style={{
+                                    width: `${percent(publishedRestaurants)}%`,
+                                }}
                             />
                             <div
                                 className="bg-amber-400"
-                                style={{ width: `${draftPercent}%` }}
+                                style={{
+                                    width: `${percent(draftRestaurants)}%`,
+                                }}
                             />
                             <div
                                 className="bg-slate-400"
-                                style={{ width: `${archivedWidth}%` }}
+                                style={{
+                                    width: `${percent(archivedRestaurants)}%`,
+                                }}
                             />
                         </div>
                         <div className="mt-6 grid gap-3 sm:grid-cols-3">
                             {[
                                 {
-                                    name: 'Published',
-                                    count: publishedRestaurants,
-                                    color: 'bg-emerald-600',
+                                    label: 'Published',
+                                    value: publishedRestaurants,
+                                    dot: 'bg-emerald-600',
                                 },
                                 {
-                                    name: 'Draft',
-                                    count: draftRestaurants,
-                                    color: 'bg-amber-400',
+                                    label: 'Draft',
+                                    value: draftRestaurants,
+                                    dot: 'bg-amber-400',
                                 },
                                 {
-                                    name: 'Archived',
-                                    count: archivedRestaurants,
-                                    color: 'bg-slate-400',
+                                    label: 'Archived',
+                                    value: archivedRestaurants,
+                                    dot: 'bg-slate-400',
                                 },
                             ].map((item) => (
                                 <div
-                                    key={item.name}
-                                    className="flex items-center justify-between gap-3 rounded-xl border border-slate-100 px-3 py-3 dark:border-white/10"
+                                    key={item.label}
+                                    className="flex items-center justify-between gap-2 rounded-xl bg-slate-50 px-3 py-3 text-xs dark:bg-white/5"
                                 >
-                                    <div className="flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-slate-300">
+                                    <span className="flex items-center gap-2 text-slate-500 dark:text-slate-300">
                                         <span
-                                            className={`size-2 rounded-full ${item.color}`}
+                                            className={`size-2 rounded-full ${item.dot}`}
                                         />
-                                        {item.name}
-                                    </div>
-                                    <span className="text-sm font-bold tabular-nums">
-                                        {item.count}
+                                        {item.label}
                                     </span>
+                                    <strong className="text-slate-950 tabular-nums dark:text-white">
+                                        {item.value}
+                                    </strong>
                                 </div>
                             ))}
                         </div>
                         {total === 0 && (
-                            <p className="mt-5 text-sm text-slate-500">
-                                No restaurant records yet. Counts will update
-                                when records are created.
+                            <p className="mt-4 text-xs text-slate-500">
+                                No restaurant records yet.
                             </p>
                         )}
                     </section>
 
                     <section
-                        aria-labelledby="workspace-heading"
-                        className="relative overflow-hidden rounded-2xl bg-[#052e25] p-6 text-white shadow-sm"
+                        aria-labelledby="next-step-heading"
+                        className="relative overflow-hidden rounded-2xl border border-emerald-950/10 bg-[#eaf5ee] p-6 dark:border-emerald-300/10 dark:bg-[#12382d]"
                     >
-                        <div className="pointer-events-none absolute -top-16 -right-12 size-48 rounded-full border border-emerald-300/15" />
-                        <div className="pointer-events-none absolute -top-8 -right-2 size-32 rounded-full border border-emerald-300/15" />
-                        <div className="relative">
-                            <div className="flex size-11 items-center justify-center rounded-xl bg-emerald-400/15 text-emerald-300">
-                                <ShieldCheck className="size-5" />
-                            </div>
-                            <h2
-                                id="workspace-heading"
-                                className="mt-5 text-lg font-bold"
-                            >
-                                A trustworthy directory starts here.
-                            </h2>
-                            <p className="mt-3 text-sm leading-6 text-emerald-100/75">
-                                Your overview reflects the restaurant records in
-                                HalalSpot. Restaurant management tools are
-                                coming in a future milestone.
-                            </p>
-                            <div className="mt-6 flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 p-3 text-xs font-medium text-emerald-100/85">
-                                <LayoutDashboard className="size-4 text-emerald-300" />{' '}
-                                A-01A · Overview available
-                            </div>
-                        </div>
+                        <div className="pointer-events-none absolute -top-12 -right-12 size-44 rounded-full border border-emerald-500/10" />
+                        <span className="flex size-11 items-center justify-center rounded-xl bg-white text-emerald-700 dark:bg-emerald-300/10 dark:text-emerald-200">
+                            <ShieldCheck
+                                className="size-5"
+                                aria-hidden="true"
+                            />
+                        </span>
+                        <p className="mt-5 text-[11px] font-bold tracking-[0.16em] text-emerald-700 uppercase dark:text-emerald-300">
+                            Your workspace
+                        </p>
+                        <h2
+                            id="next-step-heading"
+                            className="mt-2 text-xl font-extrabold tracking-tight text-[#123a2b] dark:text-white"
+                        >
+                            Manage with confidence.
+                        </h2>
+                        <p className="mt-2 text-sm leading-6 text-emerald-950/65 dark:text-emerald-100/70">
+                            Browse community accounts in the read-only user
+                            directory. Account changes are coming in a later
+                            milestone.
+                        </p>
+                        <Link
+                            href="/admin/users"
+                            className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#0c6247] px-4 text-xs font-bold text-white transition hover:bg-[#094c38] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500"
+                        >
+                            <Users className="size-4" aria-hidden="true" />{' '}
+                            Explore users{' '}
+                            <ArrowUpRight
+                                className="size-4"
+                                aria-hidden="true"
+                            />
+                        </Link>
                     </section>
                 </div>
             </div>
