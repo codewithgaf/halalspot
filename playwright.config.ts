@@ -23,7 +23,8 @@ export default defineConfig({
     webServer: [
         {
             command: 'php artisan serve --host=127.0.0.1 --port=8000',
-            url: 'http://127.0.0.1:8000',
+            // The homepage needs Vite, which starts after this readiness check.
+            url: 'http://127.0.0.1:8000/up',
             reuseExistingServer: false,
             timeout: 120_000,
             env: {

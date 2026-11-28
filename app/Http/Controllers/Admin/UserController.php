@@ -49,6 +49,36 @@ class UserController extends Controller
         ]);
     }
 
+    public function show(User $user): Response
+    {
+        $account = User::query()
+            ->select([
+                'id',
+                'name',
+                'email',
+                'account_status',
+                'email_verified_at',
+                'created_at',
+            ])
+            ->with('roles:id,name,guard_name')
+            ->findOrFail($user->id);
+
+        return Inertia::render('admin/users/show', [
+            'account' => [
+                'id' => $account->id,
+                'name' => $account->name,
+                'email' => $account->email,
+                'account_status' => $account->account_status,
+                'roles' => $account->roles
+                    ->pluck('name')
+                    ->values()
+                    ->all(),
+                'email_verified' => $account->email_verified_at !== null,
+                'created_at' => $account->created_at?->toISOString(),
+            ],
+        ]);
+    }
+
     /** @param Builder<User> $query */
     private function applySearch(Builder $query, string $search): void
     {
