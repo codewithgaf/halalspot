@@ -303,3 +303,66 @@ it('shows unfiltered active account goal counts', function () {
 it('does not expose global account metrics to guests', function () {
     $this->get('/admin/users')->assertRedirect(route('login'));
 });
+
+it('allows an MFA-authenticated administrator to view safe account details', function () {
+    $admin = User::factory()->create();
+    $admin->assignRole('administrator');
+
+    $member = User::factory()->create([
+        'name' => 'Amina Hassan',
+        'email' => 'amina@example.test',
+        'email_verified_at' => now(),
+    ]);
+    $member->assignRole('user');
+
+    loginAdminWithMfa($admin);
+
+    $this->get("/admin/users/{$member->id}")
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('admin/users/show')
+            ->has('account', 7)
+            ->where('account.id', $member->id)
+            ->where('account.name', 'Amina Hassan')
+            ->where('account.email', 'amina@example.test')
+            ->where('account.account_status', 'active')
+            ->where('account.roles', ['user'])
+            ->where('account.email_verified', true)
+            ->missing('account.password')
+            ->missing('account.remember_token')
+            ->missing('account.two_factor_secret')
+            ->missing('account.two_factor_recovery_codes')
+        );
+});
+
+it('prevents ordinary users from viewing account details', function () {
+    $member = User::factory()->create();
+    $member->assignRole('user');
+
+    $target = User::factory()->create();
+
+    $this->actingAs($member)
+        ->get("/admin/users/{$target->id}")
+        ->assertForbidden();
+});
+
+it('requires privileged MFA to view account details', function () {
+    $admin = User::factory()->create();
+    $admin->assignRole('administrator');
+
+    $target = User::factory()->create();
+
+    $this->actingAs($admin)
+        ->get("/admin/users/{$target->id}")
+        ->assertForbidden();
+});
+
+it('returns 404 for an account that does not exist', function () {
+    $admin = User::factory()->create();
+    $admin->assignRole('administrator');
+
+    loginAdminWithMfa($admin);
+
+    $this->get('/admin/users/999999999')
+        ->assertNotFound();
+});

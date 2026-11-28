@@ -63,4 +63,15 @@ Route::get('/admin/users', [AdminUserController::class, 'index'])
         'role:administrator',
     ])
     ->name('admin.users.index');
+
+Route::get('/admin/users/{user}', [AdminUserController::class, 'show'])
+    ->middleware([
+        'auth',
+        EnsureAccountIsActive::class,
+        EnsurePrivilegedMfa::class,
+        'role:administrator',
+    ])
+    ->whereNumber('user')
+    ->name('admin.users.show');
+
 require __DIR__.'/settings.php';
